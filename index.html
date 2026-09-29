@@ -1309,6 +1309,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             'gate-closing-load': { anchor:'GV1', title:'GV1 關閉：隔離外部大氣', body:'載盤已進入 CH1，現在關閉 GV1，把 CH1 與外部大氣側隔離。門閥確認關到位後，才進入正式抽氣流程。', next:'下一步：啟動 RP1 前級 PUMP，準備抽氣。' },
             'rp-starting': { anchor:'RP1', title:'RP1 ON：啟動前級 PUMP', body:'RP1 前級幫浦正在建立抽氣能力。這一步只是讓 PUMP 運轉；CH1 尚未由 RV1 完整接通，因此目前不是直接把 CH1 抽到低真空。', next:'下一步：開啟 RV1，建立 CH1 → RV1 → RP1 的抽氣路徑。' },
             'roughing': { anchor:'RV1', title:'RV1 OPEN：CH1 開始粗抽', body:'RV1 已開啟，CH1 與 RP1 抽氣管路連通。氣體由 CH1 流向抽氣管路，RP1 持續移除氣體，CH1 壓力開始下降。Slow RV 是較細管徑的 RV，作用相同但抽氣能力較小。', next:'下一步：持續粗抽，直到達到 RF／GV2 所需的壓力條件。' },
+            'roughing-bp': { anchor:'BP1', title:'BP1 ON：加強 CH1 抽氣', body:'CH1 與 RP 管路已低於 10 Torr，現在啟動 BP1。RV1 保持開啟，由 RP1／BP1 一起加強 CH1 的抽氣。', next:'下一步：CH1 達到前段真空門檻後，再依設定進行 RF 清潔或準備 GV2。' },
             'rf-gas-stabilize': { anchor:'V1_1', title:'RF 清潔氣體：Ar／O₂ 進氣與壓力穩定', body:'現在依 RF 設定開啟選定氣體。Ar 提供電漿工作氣體；若啟用 O₂，則加入反應性氧氣。MFC 控制設定流量，抽氣端同時維持製程壓力。', next:'下一步：壓力進入 RF 啟動範圍後，RF 電源建立電漿。' },
             'rf-cleaning': { anchor:'RF', title:'RF ON：電漿清潔／離子轟擊', body:'RF 電源在低壓氣體中建立高頻電場，使 Ar 電子碰撞游離形成 Ar⁺。正離子在電場與陰極鞘層作用下加速轟擊表面，將污染物與殘留膜層以離子轟擊方式去除。', next:'下一步：清潔計時完成後關閉 RF 與清潔氣體，準備進入鍍膜段。' },
             'prepare-gv2': { anchor:'GV2', title:'準備 GV2：確認後段抽氣條件', body:'CH1 已完成前段抽氣／RF 清潔。現在準備隔離前段粗抽路徑並讓 GV2 建立 CH1 與後段腔體的連通。', next:'下一步：GV2 開啟後，先完整等待「GV2 開啟抽氣延遲」，即使 IG2 立即達標也不能提前傳動。' },
@@ -5449,6 +5450,26 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 `第 ${activeAutoLayerIndex + 1}/${autoLayers.length} 層開始第 1/${autoPassCount} 趟：CH${autoCoatingStartSec}→CH${autoCoatingEndSec}，${powered.length ? powered.map(id => id.replace('_', '-')).join('、') + ' 通電' : 'DC 靶 0 kW 空跑'}`);
         }
 
+        function showAutoPhaseGuide(phase) {
+            if (!tutorialModeEnabled()) return;
+            tutorialCards = tutorialCards.filter(c =>
+                !String(c.key || '').startsWith('auto-phase:'));
+            const guide = autoPhaseTutorials[phase];
+            if (guide) {
+                requestAnimationFrame(() => {
+                    const current = phase === 'roughing-bp' ?
+                        autoPhase === 'roughing' && pumps.BP1 :
+                        phase === 'roughing' ? autoPhase === 'roughing' && !pumps.BP1 :
+                        autoPhase === phase;
+                    if (!current || !tutorialModeEnabled()) return;
+                    const target = findTutorialItem(guide.anchor);
+                    if (target) showTutorialGuide(guide, target, true,
+                        `流程：${phase}`, `auto-phase:${phase}`, true);
+                });
+            }
+            renderTutorialCards();
+        }
+
         function enterAutoPhase(phase, message) {
             autoPhase = phase;
             autoStepSeconds = 0;
@@ -5463,15 +5484,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (tutorialModeEnabled()) {
                 // 每進入一個新流程步驟，就只保留一張「目前步驟」教學卡；
                 // 卡片的壽命跟著 autoPhase，而不是自己的倒數計時。
-                tutorialCards = tutorialCards.filter(c => !String(c.key || '').startsWith('auto-phase:'));
-                const guide = autoPhaseTutorials[phase];
-                if (guide) {
-                    requestAnimationFrame(() => {
-                        const target = findTutorialItem(guide.anchor);
-                        if (target) showTutorialGuide(guide, target, true, `流程：${phase}`, `auto-phase:${phase}`, true);
-                    });
-                }
-                renderTutorialCards();
+                showAutoPhaseGuide(phase);
             } else {
                 updateStatus(message);
             }
@@ -5736,6 +5749,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     pumpLinePressure < BP1_WARNING_PRESSURE_TORR && !waitingForAutoStep()) {
                     pumps.BP1 = true;
                     autoPhaseEnteredAtMs = performance.now();
+                    showAutoPhaseGuide('roughing-bp');
                     updateStatus('CH1 與 RP 管路均低於 10 Torr；BP 啟動加強抽氣。');
                     return;
                 }
