@@ -131,6 +131,66 @@
         @media (prefers-reduced-motion: reduce) {
             .bp-alert-shake, .bp-warning { animation: none; }
         }
+
+        /* Parameter console: compact grouped controls matching the machine HMI. */
+        #parameters-page { padding: 8px; background: #c9c8bb; }
+        .parameter-page-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; color:#713c32; font-weight:bold; }
+        .parameter-page-bar small { color:#45453f; margin-left:12px; }
+        .parameter-page-bar button { padding:3px 12px; font-size:12px; }
+        .parameter-layout { grid-template-columns:minmax(430px,2fr) minmax(180px,.82fr) minmax(225px,1fr) minmax(285px,1.3fr); gap:6px; align-items:stretch; }
+        .parameter-column { gap:6px; }
+        .parameter-group-title { font:bold 21px Georgia,'Times New Roman',serif; color:#713c32; margin:0 0 3px; line-height:1.2; }
+        .parameter-card { background:transparent; border:2px groove #eeeede; padding:7px 8px 9px; min-height:0; min-width:0; }
+        .parameter-card h2 { font:bold 18px Georgia,'Times New Roman',serif; color:#202c55; margin:-2px 0 9px; }
+        .parameter-card input:not([type=checkbox]), .parameter-card select { box-sizing:border-box; background:#fffef2; border:2px inset #e6e6d8; border-radius:0; padding:1px 4px; min-height:24px; color:#151a1b; font:13px 'Courier New',monospace; width:78px; max-width:100%; }
+        .parameter-card input[type=checkbox] { width:14px; height:14px; accent-color:#1c406f; vertical-align:middle; }
+        .parameter-card input:disabled,.parameter-card select:disabled { background:#d3d2c9; color:#64645d; }
+        .parameter-card input:focus,.parameter-card select:focus { outline:2px solid #326795; outline-offset:1px; }
+        .parameter-card .recipe-field { display:grid; grid-template-columns:minmax(0,1fr) 78px; align-items:center; gap:6px; font-size:12px; }
+        .parameter-reading { display:inline-block; background:#c5e9f0; border:2px inset #e2e4df; padding:2px 4px; min-height:24px; min-width:0; color:#193c51; font:13px 'Courier New',monospace; text-align:right; }
+        .parameter-manual { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); grid-template-rows:auto auto auto auto 1fr; gap:6px; }
+        .parameter-manual>.parameter-group-title,.parameter-dc,.parameter-gauge { grid-column:1 / -1; }
+        .parameter-manual-rf { grid-column:1; grid-row:3; }
+        .parameter-manual-speed { grid-column:1; grid-row:4; }
+        .parameter-mfc { grid-column:2; grid-row:3 / 5; }
+        .parameter-gauge { grid-row:5; }
+        .parameter-dc-grid { grid-template-columns:80px repeat(4,minmax(0,1fr)); gap:7px 8px; text-align:center; }
+        .parameter-dc-grid>b:first-child,.parameter-dc-grid>b { font-size:12px; }
+        .parameter-gas-grid { grid-template-columns:minmax(0,1fr) 58px 58px; gap:9px 5px; font-size:11px; }
+        .parameter-gauge-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; }
+        .parameter-gauge-row { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+        .parameter-gauge-row .parameter-reading { min-width:83px; }
+        .parameter-regen>h2 { color:#713c32; font-size:21px; }
+        .parameter-regen .recipe-field { grid-template-columns:minmax(0,1fr) 65px; }
+        .parameter-regen #cp-regen-status { display:block; line-height:1.5; }
+        .parameter-regen>div.flex { flex-direction:column; align-items:stretch; }
+        .parameter-auto-rf { padding-top:0; }
+        .parameter-auto-rf>.parameter-group-title { margin:0 -8px 12px; }
+        .parameter-auto-rf .grid { gap:12px; }
+        .parameter-auto-layer { padding-top:29px; }
+        .parameter-layer>div.grid { display:grid; grid-template-columns:1fr; gap:9px; margin-bottom:12px; }
+        .parameter-layer>div.grid>span:empty { display:none; }
+        .parameter-layer .recipe-field>span { display:flex; align-items:center; gap:5px; }
+        .parameter-layer .recipe-field>span:last-child { flex-direction:row-reverse; }
+        .parameter-card p { line-height:1.5; font-size:11px; }
+        .parameter-live-power { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin:8px 0 0 auto; padding:8px 18px; width:65%; background:#009bcc; border:2px inset #c6f4ff; color:#07345d; }
+        .parameter-live-power>div { display:grid; gap:4px; }
+        .parameter-live-power b { text-align:center; font:bold 15px Georgia,serif; }
+        .parameter-live-power label { display:grid; grid-template-columns:minmax(0,1fr) 26px; gap:5px; align-items:center; }
+        .parameter-live-power output { background:#e8fbff; border:2px inset #ccedf1; text-align:right; padding:1px 4px; font:13px monospace; }
+        @media(max-width:1200px) {
+            .parameter-layout { grid-template-columns:minmax(390px,1.5fr) minmax(180px,.7fr); }
+            .parameter-auto-layer { padding-top:29px; }
+            .parameter-live-power { width:100%; }
+        }
+        @media(max-width:650px) {
+            .parameter-layout { display:block; }
+            .parameter-layout>*, .parameter-column>section { margin-bottom:8px; }
+            .parameter-manual { display:block; }
+            .parameter-auto-layer { padding-top:0; }
+            .parameter-live-power { gap:5px; padding:5px; }
+            .parameter-live-power label { grid-template-columns:1fr; gap:0; }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between text-black text-xs">
@@ -165,53 +225,42 @@
         </div>
     </div>
 
-    <div id="parameters-page" class="hidden scada-window flex-1 p-4 my-0.5 bg-[#c0c0c0] min-h-[580px]">
-        <div class="flex items-center justify-between border-b border-gray-500 pb-2 mb-4">
-            <h1 class="text-base font-bold">參數設定</h1>
-            <button onclick="showScadaPage('main')" class="scada-button px-3 py-1">返回主畫面</button>
-        </div>
-        <div class="parameter-layout">
-            <div class="parameter-column">
-                <section class="parameter-card">
-                    <h2>手動模式 DC 功率設定（kW）</h2>
+<div id="parameters-page" class="hidden scada-window flex-1 p-4 my-0.5 bg-[#c0c0c0] min-h-[580px]">
+        <div class="parameter-page-bar"><span>PARAMETER SETTING <small>參數設定</small></span><button onclick="showScadaPage('main')" class="scada-button">返回主畫面</button></div><div class="parameter-layout">
+            <div class="parameter-column parameter-manual">
+                <h1 class="parameter-group-title">Manual Parameter Setting</h1><section class="parameter-card parameter-dc">
+                    <h2>DC Setting</h2>
                     <div class="parameter-dc-grid">
-                        <span></span><b>DC1</b><b>DC2</b><b>DC3</b><b>DC4</b>
-                        <b>設定值</b>
+                        <span></span><b>DC1-A</b><b>DC1-B</b><b>DC2-A</b><b>DC2-B</b>
+                        <b>設定 kW</b>
                         <input id="manual-dc1-set" type="number" min="0.1" max="20" step="0.1" value="4.7" onchange="setManualDcPower(0,this)">
                         <input id="manual-dc2-set" type="number" min="0.1" max="20" step="0.1" value="4.8" onchange="setManualDcPower(1,this)">
                         <input id="manual-dc3-set" type="number" min="0.1" max="20" step="0.1" value="6.4" onchange="setManualDcPower(2,this)">
                         <input id="manual-dc4-set" type="number" min="0.1" max="20" step="0.1" value="6.6" onchange="setManualDcPower(3,this)">
-                        <b>實際值</b><span id="manual-dc1-act" class="parameter-reading">0.0</span><span id="manual-dc2-act" class="parameter-reading">0.0</span><span id="manual-dc3-act" class="parameter-reading">0.0</span><span id="manual-dc4-act" class="parameter-reading">0.0</span>
-                    </div>
+                        <b>實際 kW</b><span id="manual-dc1-act" class="parameter-reading">0.0</span><span id="manual-dc2-act" class="parameter-reading">0.0</span><span id="manual-dc3-act" class="parameter-reading">0.0</span><span id="manual-dc4-act" class="parameter-reading">0.0</span>
+                    <b>Voltage (V)</b><span class="parameter-reading" data-power-source="p-dc1a-v">0</span><span class="parameter-reading" data-power-source="p-dc1b-v">0</span><span class="parameter-reading" data-power-source="p-dc2a-v">0</span><span class="parameter-reading" data-power-source="p-dc2b-v">0</span><b>Current (A)</b><span class="parameter-reading" data-power-source="p-dc1a-a">0</span><span class="parameter-reading" data-power-source="p-dc1b-a">0</span><span class="parameter-reading" data-power-source="p-dc2a-a">0</span><span class="parameter-reading" data-power-source="p-dc2b-a">0</span></div>
                 </section>
-                <section class="parameter-card">
-                    <h2>手動模式氣體流量設定（sccm）</h2>
+                <section class="parameter-card parameter-manual-rf"><h2>RF Setting</h2><div class="parameter-gas-grid"><span></span><b>設定值</b><b>實際值</b><span>功率 (W)</span><input id="manual-rf-power-set" type="number" min="1" max="3000" step="10" value="480" onchange="setManualRfPower(this)"><span class="parameter-reading" data-power-source="p-rf-w1">0</span><span>反射 (W)</span><span>—</span><span class="parameter-reading" data-power-source="p-rf-wr">0</span></div></section><section class="parameter-card parameter-manual-speed"><h2>Speed Setting</h2><label class="recipe-field">Manual (mm/s)<input id="manual-speed-set" type="number" min="1" max="200" step="1" value="30" onchange="setConveyorParameter('manual',this)"></label></section><section class="parameter-card parameter-mfc">
+                    <h2>MFC Setting</h2>
                     <div class="parameter-gas-grid">
                         <span></span><b>設定值</b><b>實際值</b>
-                        <span>V1.1 Ar</span><input id="manual-flow-v11-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V1_1',this)"><span id="manual-flow-v11-act" class="parameter-reading">0</span>
-                        <span>V1.2 O₂</span><input id="manual-flow-v12-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V1_2',this)"><span id="manual-flow-v12-act" class="parameter-reading">0</span>
-                        <span>V1 Ar</span><input id="manual-flow-v1-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V2',this)"><span id="manual-flow-v1-act" class="parameter-reading">0</span>
-                        <span>V2 Ar</span><input id="manual-flow-v2-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V3',this)"><span id="manual-flow-v2-act" class="parameter-reading">0</span>
+                        <span>MFC1_1 Ar · V1.1</span><input id="manual-flow-v11-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V1_1',this)"><span id="manual-flow-v11-act" class="parameter-reading">0</span>
+                        <span>MFC1_2 O₂ · V1.2</span><input id="manual-flow-v12-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V1_2',this)"><span id="manual-flow-v12-act" class="parameter-reading">0</span>
+                        <span>MFC2 Ar · CH2</span><input id="manual-flow-v1-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V2',this)"><span id="manual-flow-v1-act" class="parameter-reading">0</span>
+                        <span>MFC3 Ar · CH3</span><input id="manual-flow-v2-set" type="number" min="0" max="1000" value="200" onchange="setProcessGasFlow('V3',this)"><span id="manual-flow-v2-act" class="parameter-reading">0</span>
                     </div>
                 </section>
-                <section class="parameter-card">
-                    <h2>手動模式</h2>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="recipe-field">傳動速度（mm/s）<input id="manual-speed-set" type="number" min="1" max="200" step="1" value="30" onchange="setConveyorParameter('manual',this)"></label>
-                        <label class="recipe-field">RF 功率（W）<input id="manual-rf-power-set" type="number" min="1" max="3000" step="10" value="480" onchange="setManualRfPower(this)"></label>
-                    </div>
-                </section>
-                <section class="parameter-card">
-                    <h2>真空計（目前讀值，Torr）</h2>
-                    <div class="grid grid-cols-2 gap-2">
-                        <span>CH1 CG：<b id="parameter-gauge-ch1">7.60E+02</b></span><span>CH2～4 CG：<b id="parameter-gauge-ch2">7.60E+02</b></span>
-                        <span>BG1：<b id="parameter-gauge-bg1">7.60E+02</b></span><span>BG2：<b id="parameter-gauge-bg2">7.60E+02</b></span>
-                        <span>CP2 CG：<b id="parameter-gauge-cp2">7.60E+02</b></span><span>CP3 CG：<b id="parameter-gauge-cp3">7.60E+02</b></span>
+                <section class="parameter-card parameter-gauge">
+                    <h2>Gauge Reading</h2>
+                    <div class="parameter-gauge-grid">
+                        <span class="parameter-gauge-row">CH1 CG：<b id="parameter-gauge-ch1" class="parameter-reading">7.60E+02</b></span><span class="parameter-gauge-row">CH2～4 CG：<b id="parameter-gauge-ch2" class="parameter-reading">7.60E+02</b></span>
+                        <span class="parameter-gauge-row">BG1：<b id="parameter-gauge-bg1" class="parameter-reading">7.60E+02</b></span><span class="parameter-gauge-row">BG2：<b id="parameter-gauge-bg2" class="parameter-reading">7.60E+02</b></span>
+                        <span class="parameter-gauge-row">CP2 CG：<b id="parameter-gauge-cp2" class="parameter-reading">7.60E+02</b></span><span class="parameter-gauge-row">CP3 CG：<b id="parameter-gauge-cp3" class="parameter-reading">7.60E+02</b></span>
                     </div>
                 </section>
             </div>
-            <section class="parameter-card min-h-[360px]">
-                <h2>CP 自動再生設定</h2>
+            <section class="parameter-card parameter-regen">
+                <h2>Auto CP-Regen</h2>
                 <p>CP2：<span id="parameter-cp2-usage">0.0%</span></p>
                 <p>CP3：<span id="parameter-cp3-usage">0.0%</span></p>
                 <div class="grid gap-3 mt-3">
@@ -224,8 +273,8 @@
                 <p id="cp-regen-error" class="text-red-800 font-bold mt-2" role="alert"></p>
                 <p class="mt-3 text-gray-700">在手動模式啟動；流程會隔離 MV、停止 CP、以 PURGE 充氣並經 FV／RP 抽氣。實際回復量依排出氣體計算，若未達 0% 會顯示殘餘使用率；模擬時間倍率同樣適用。</p>
             </section>
-            <section class="parameter-card min-h-[360px]">
-                <h2>自動模式 RF 設定</h2>
+            <section class="parameter-card parameter-auto-rf">
+                <h1 class="parameter-group-title">Auto Parameter Setting</h1><h2>RF Setting</h2>
                 <label class="flex gap-2 items-center font-bold mb-3"><input id="auto-rf-enabled" type="checkbox" checked onchange="setAutoRfParameters()">啟用 RF 清潔</label>
                 <div class="grid gap-3">
                     <label class="recipe-field">功率（W）<input id="auto-rf-power" type="number" min="1" max="3000" step="10" value="480" onchange="setAutoRfParameters()"></label>
@@ -238,25 +287,25 @@
                 </div>
                 <p id="auto-rf-error" class="text-red-800 font-bold mt-3" role="alert" aria-live="polite"></p>
             </section>
-            <div class="parameter-column">
+            <div class="parameter-column parameter-auto-layer">
                 <section class="parameter-card">
-                    <h2>自動模式傳動速度（非鍍膜時）</h2>
+                    <h2>Speed Setting</h2>
                     <label class="recipe-field">傳動速度（mm/s）<input id="auto-transit-speed-set" type="number" min="1" max="200" step="1" value="80" onchange="setConveyorParameter('transit',this)"></label>
                     <p class="text-gray-700 mt-2">腔體節距 930 mm；鍍膜速度為 30 mm/s 時，3 腔一趟 62 秒、4 腔一趟 93 秒（不含 Delay）。</p>
                 </section>
-                <section class="parameter-card">
-                    <h2>自動模式 Layer 設定</h2>
+                <section class="parameter-card parameter-layer">
+                    <h2>Layer Sputter Setting</h2>
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <label class="recipe-field">LAYER（總層數）<input id="recipe-layer-count" type="number" min="1" max="20" step="1" value="1" onchange="setAutoLayerCount(this)"></label>
-                        <label class="recipe-field">選擇設定層數<select id="recipe-layer-select" onchange="selectAutoLayer(this)"><option value="0">第 1 層</option></select></label>
+                        <label class="recipe-field">Total Layer<input id="recipe-layer-count" type="number" min="1" max="20" step="1" value="1" onchange="setAutoLayerCount(this)"></label>
+                        <label class="recipe-field">Layer<select id="recipe-layer-select" onchange="selectAutoLayer(this)"><option value="0">第 1 層</option></select></label>
                     </div>
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <label class="recipe-field">趟數<input id="recipe-passes" type="number" min="1" max="20" step="1" value="1" onchange="saveLayerEditor()"></label>
-                        <label class="recipe-field">DELAY TIME（秒）<input id="recipe-delay" type="number" min="0" max="300" step="0.1" value="10" onchange="saveLayerEditor()"></label>
-                        <label class="recipe-field">鍍膜傳動速度（mm/s）<input id="recipe-speed" type="number" min="1" max="200" step="1" value="30" onchange="saveLayerEditor()"></label>
+                        <label class="recipe-field">Sputter Times / Layer<input id="recipe-passes" type="number" min="1" max="20" step="1" value="1" onchange="saveLayerEditor()"></label>
+                        <label class="recipe-field">Delay Time (s)<input id="recipe-delay" type="number" min="0" max="300" step="0.1" value="10" onchange="saveLayerEditor()"></label>
+                        <label class="recipe-field">Sputter Speed (mm/s)<input id="recipe-speed" type="number" min="1" max="200" step="1" value="30" onchange="saveLayerEditor()"></label>
                         <span></span>
-                        <label class="recipe-field">氣體流量 V1（CH2；sccm）<input id="recipe-flow-v1" type="number" min="0" max="1000" step="1" value="200" onchange="saveLayerEditor()"></label>
-                        <label class="recipe-field">氣體流量 V2（CH3；sccm）<input id="recipe-flow-v2" type="number" min="0" max="1000" step="1" value="200" onchange="saveLayerEditor()"></label>
+                        <label class="recipe-field">MFC2 Ar (sccm)<input id="recipe-flow-v1" type="number" min="0" max="1000" step="1" value="200" onchange="saveLayerEditor()"></label>
+                        <label class="recipe-field">MFC3 Ar (sccm)<input id="recipe-flow-v2" type="number" min="0" max="1000" step="1" value="200" onchange="saveLayerEditor()"></label>
                     </div>
                     <div class="grid grid-cols-2 gap-2 border-t border-gray-500 pt-3">
                         <label class="recipe-field"><span><input id="recipe-dc1" type="checkbox" checked onchange="saveLayerEditor()"> DC1（CH2 A）</span><span>kW <input id="recipe-dc1-kw" type="number" min="0" max="20" step="0.1" value="4.7" onchange="saveLayerEditor()"></span></label>
@@ -269,7 +318,9 @@
                 </section>
             </div>
         </div>
-    </div>
+    <div class="parameter-live-power" aria-label="電源即時值"><div><b>DC1-A</b><label><output data-power-source="p-dc1a-a">0</output><span>A</span></label><label><output data-power-source="p-dc1a-v">0</output><span>V</span></label><label><output data-power-source="p-dc1a-kw">0</output><span>kW</span></label></div><div><b>DC1-B</b><label><output data-power-source="p-dc1b-a">0</output><span>A</span></label><label><output data-power-source="p-dc1b-v">0</output><span>V</span></label><label><output data-power-source="p-dc1b-kw">0</output><span>kW</span></label></div><div><b>DC2-A</b><label><output data-power-source="p-dc2a-a">0</output><span>A</span></label><label><output data-power-source="p-dc2a-v">0</output><span>V</span></label><label><output data-power-source="p-dc2a-kw">0</output><span>kW</span></label></div><div><b>DC2-B</b><label><output data-power-source="p-dc2b-a">0</output><span>A</span></label><label><output data-power-source="p-dc2b-v">0</output><span>V</span></label><label><output data-power-source="p-dc2b-kw">0</output><span>kW</span></label></div><div><b>RF</b><label><output data-power-source="p-rf-w1">0</output><span>W</span></label><label><output data-power-source="p-rf-wr">0</output><span>Wr</span></label></div></div></div>
+
+
 
     <div id="main-panel" class="relative flex-1 scada-window p-2 my-0.5 bg-[#c0c0c0] flex flex-col justify-between overflow-hidden min-h-[580px]">
         
@@ -4207,6 +4258,10 @@
         }
 
         function renderManualParameterActuals() {
+            if (document.querySelectorAll) document.querySelectorAll('[data-power-source]').forEach(output => {
+                const source = document.getElementById(output.dataset.powerSource);
+                output.textContent = source ? source.value : '0';
+            });
             for (let i = 0; i < dcLayerTargets.length; i++) {
                 const field = document.getElementById(`manual-dc${i + 1}-set`);
                 if (document.activeElement !== field) field.value = manualDcPowerKw[i];
@@ -4227,7 +4282,7 @@
             document.getElementById('manual-speed-reverse').textContent = manualConveyorSpeedMmSec;
             document.getElementById('auto-transit-speed-hint').textContent = autoTransitSpeedMmSec;
             for (const [id, value] of [
-                ['ch1', chamberPressure.ch1], ['ch2', chamberPressure.ch2],
+                ['ch1', cgGaugePressure('ch1')], ['ch2', cgGaugePressure('ch2')],
                 ['bg1', bgPressure.bg1], ['bg2', bgPressure.bg2],
                 ['cp2', cpForelinePressure.ch2], ['cp3', cpForelinePressure.ch3]
             ]) document.getElementById(`parameter-gauge-${id}`).textContent = formatPressure(value);
