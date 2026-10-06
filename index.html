@@ -207,6 +207,9 @@
         .tutorial-highlight { animation:tutorial-highlight 0.7s ease-in-out 3; }
         .power-sequence-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border:1px solid #555; background:#e8e8e8; font-size:11px; font-weight:700; }
         .power-sequence-active { background:#fff2a8; border-color:#9b7b00; }
+        .system-settings-tabs { display:flex; gap:8px; margin:8px 0 12px; }
+        .system-settings-tabs button { padding:7px 22px; font-weight:bold; }
+        .system-settings-tabs button.active { background:#173e67; color:#fff; }
         .auto-flow-panel { border:2px groove #f5f5ed; padding:9px; margin:4px 0 15px; background:#d4d0c8; }
         .auto-flow-panel h2 { font:bold 17px Georgia,serif; color:#713c32; margin:0 0 5px; }
         .auto-flow-panel p { margin:3px 0 8px; line-height:1.5; }
@@ -214,15 +217,30 @@
         .auto-flow-toolbar select,.auto-flow-row input,.auto-flow-row select {
             border:2px inset #fff; background:#fffef2; color:#151a1b; padding:2px 3px; min-width:0;
         }
-        .auto-flow-row { display:grid; grid-template-columns:85px minmax(130px,1.25fr) minmax(115px,1fr) 82px minmax(120px,1fr) 78px auto;
-            gap:5px; align-items:center; border-top:1px solid #aaa; padding:5px 0; }
+        .auto-flow-list { max-height:630px; overflow:auto; border:1px solid #777; background:#d7d5ce; }
+        .auto-flow-stage { border-bottom:1px solid #8b8b8b; }
+        .auto-flow-stage summary { cursor:pointer; position:sticky; top:0; z-index:1; padding:7px 9px;
+            background:#a8bfd0; color:#123650; font-weight:bold; border-bottom:1px solid #71889c; }
+        .auto-flow-stage .stage-add { margin:6px 9px; }
+        .auto-flow-column-head { display:grid; grid-template-columns:36px minmax(185px,1.5fr) minmax(110px,.8fr) minmax(108px,.7fr) 106px;
+            gap:7px; padding:4px 9px; color:#395169; font-size:11px; font-weight:bold; }
+        .auto-flow-row { display:grid; grid-template-columns:36px minmax(185px,1.5fr) minmax(110px,.8fr) minmax(108px,.7fr) 106px;
+            gap:7px; align-items:center; border-top:1px solid #aaa; padding:6px 9px; min-height:37px; }
+        .auto-flow-row:nth-of-type(even) { background:#e3e2dc; }
+        .auto-flow-row .step-index { color:#375066; font-weight:bold; }
+        .auto-flow-row .step-description { grid-column:2/5; color:#4a4a4a; font-size:11px; margin-top:-4px; }
+        .auto-flow-row .step-value { display:flex; align-items:center; gap:5px; }
         .auto-flow-row input,.auto-flow-row select { width:100%; box-sizing:border-box; }
         .auto-flow-row .buttons { white-space:nowrap; display:flex; gap:3px; }
         .auto-flow-row .buttons button { padding:2px 5px; }
         .auto-flow-heading { font-weight:bold; color:#173c69; border-bottom:1px solid #777; padding:5px 0 3px; }
         .auto-flow-hint { color:#484848; font-size:11px; }
-        @media(max-width:1000px) { .auto-flow-row { grid-template-columns:75px repeat(2,minmax(110px,1fr)); }
-            .auto-flow-row .buttons { grid-column:1/-1; } }
+        @media(max-width:800px) { .auto-flow-row { grid-template-columns:28px minmax(110px,1fr) minmax(100px,1fr); }
+            .auto-flow-column-head { grid-template-columns:28px minmax(110px,1fr) minmax(100px,1fr); }
+            .auto-flow-column-head span:nth-child(n+4) { display:none; }
+            .auto-flow-row .step-value { grid-column:2; }
+            .auto-flow-row .buttons { grid-column:3; }
+            .auto-flow-row .step-description { grid-column:2/4; } }
         #power-sequence-skip { white-space:nowrap; font-size:11px; padding:2px 7px; }
         #power-sequence-skip:disabled { opacity:.5; cursor:default; }
         @keyframes tutorial-highlight { 50% { filter:brightness(1.5); } }
@@ -466,23 +484,43 @@
 
 <div id="system-page" class="hidden scada-window flex-1 p-4 my-0.5 bg-[#c0c0c0] min-h-[580px]">
         <div class="parameter-page-bar"><span>SYSTEM <small>系統設定 ‧ 自動流程／教學說明</small></span><button onclick="showScadaPage('main')" class="scada-button">返回主畫面</button></div>
-        <section class="auto-flow-panel" aria-label="自動流程執行設定">
+        <div class="system-settings-tabs">
+            <button id="system-tab-flow" class="scada-button active" onclick="setSystemSettingsTab('flow')">流程設定</button>
+            <button id="system-tab-guides" class="scada-button" onclick="setSystemSettingsTab('guides')">說明設定</button>
+        </div>
+        <div id="system-flow-page">
+        <div class="auto-flow-toolbar"><label>選擇流程 <select id="system-flow-kind" onchange="setSystemFlowKind(this.value)"><option value="auto">自動鍍膜</option><option value="startup">一鍵開機</option><option value="shutdown">一鍵關機</option></select></label></div>
+        <section id="system-auto-flow" class="auto-flow-panel" aria-label="自動流程執行設定">
             <h2>自動流程設定（實際執行）</h2>
-            <p>下方逐項列出實際執行的預設動作；每一項都可改階段、修改、移動或刪除，也能加入新動作。動作仍受門閥壓差與載盤感應器限制。RP 支線在最後一個 RV／FV 關閉後檢查即將到來的開閥動作；RF 與 GV2 抽氣延遲用模擬秒，其餘動作間隔用實際秒。設定在下一次啟動時套用。</p>
+            <p>從上往下執行，每列只做一件事。例如「開 GV1」→「等 GV1 開到位」→「再等 2 秒」各佔一列。展開階段後可逐項修改、移動或刪除；右側「＋」可在該階段加入步驟。門閥壓差和載盤不能穿越關閉門閥等物理限制仍會檢查。修改在下一次啟動時套用。</p>
             <div class="auto-flow-toolbar">
-                <label>新增於 <select id="auto-flow-insert-phase"></select></label>
-                <button type="button" class="scada-button ge-btn" onclick="addAutoFlowStep()">＋ 新增步驟</button>
+                <label>顯示 <select id="auto-flow-stage-filter" onchange="renderAutoFlowEditor()"><option value="all">全部階段</option></select></label>
                 <button type="button" class="scada-button ge-btn" onclick="resetAutoFlowSettings()">還原預設流程設定</button>
                 <button type="button" class="scada-button ge-btn" onclick="exportAutoFlowSettings()">匯出</button>
                 <button type="button" class="scada-button ge-btn" onclick="document.getElementById('auto-flow-import').click()">匯入</button>
                 <input id="auto-flow-import" type="file" accept="application/json,.json" class="hidden" onchange="importAutoFlowSettings(this)">
                 <span id="auto-flow-status" class="auto-flow-hint"></span>
             </div>
-            <div class="auto-flow-heading">主線與 RP 支線等待（秒；0 可略過非物理等待）</div>
-            <div id="auto-flow-waits"></div>
-            <div class="auto-flow-heading">主線逐項動作（進入所選階段前依顯示順序執行）</div>
-            <div id="auto-flow-custom"></div>
+            <div class="auto-flow-toolbar"><label>RP 支線：預計 <input id="auto-flow-reopen" type="number" min="0" max="3600" step="1" style="width:65px" onchange="setAutoFlowWait('rp-branch-reopen',this)"> 秒內重開 RV／FV，就先保留 RP／BP</label></div>
+            <div id="auto-flow-custom" class="auto-flow-list"></div>
         </section>
+        <section id="system-power-flow" class="auto-flow-panel hidden" aria-label="一鍵開關機流程設定">
+            <h2 id="power-flow-title">一鍵開機流程</h2>
+            <p>每列是一個動作或等待，依階段由上往下執行。可新增、刪除、上下移動，也可改操作、設備與數值。已有相同狀態的確認動作會略過其後的步驟間隔。設定在下一次啟動套用。</p>
+            <p>以下設定供「教學模式」逐步開／關機使用；瞬間完成仍直接設定待機狀態。等待壓力、溫度或再生時間時，經過 5 秒可按主畫面的「快進目前等待」。門閥與 RP 的實體互鎖仍生效。</p>
+            <div class="auto-flow-toolbar">
+                <label id="power-flow-cycles-wrap">開機再生循環 <input id="power-flow-cycles" type="number" min="1" max="10" step="1" style="width:60px" onchange="setPowerFlowCycles(this)"> 次</label>
+                <button class="scada-button" onclick="stopEditablePowerFlow()">停止目前一鍵流程</button>
+                <button class="scada-button" onclick="resetPowerFlowSettings()">還原本流程</button>
+                <button class="scada-button" onclick="exportPowerFlows()">匯出開／關機流程</button>
+                <button class="scada-button" onclick="document.getElementById('power-flow-import').click()">匯入</button>
+                <input id="power-flow-import" type="file" accept="application/json,.json" class="hidden" onchange="importPowerFlows(this)">
+                <span id="power-flow-status" class="auto-flow-hint"></span>
+            </div>
+            <div id="power-flow-list" class="auto-flow-list"></div>
+        </section>
+        </div>
+        <div id="system-guides-page" class="hidden">
         <div class="ge-toolbar">
             <button type="button" id="ge-tab-manual" class="scada-button ge-tab" onclick="setGuideEditorTab('manual')">手動操作</button>
             <button type="button" id="ge-tab-auto" class="scada-button ge-tab" onclick="setGuideEditorTab('auto')">自動流程說明</button>
@@ -503,6 +541,7 @@
                 <div class="ge-tip">• 修改在離開欄位後自動儲存，只存在這個瀏覽器；換電腦請用「匯出／匯入」。<br>• 標示「↔ 同步」的欄位會跟著原始動作的說明走；自己改過就變成獨立文字，可用「還原」恢復同步。<br>• 建議長度：標題 ≤ 24 字、內文 ≤ 75 字、下一步 ≤ 36 字（超過只提醒，不強制）。<br>• 「在主畫面預覽」需先勾選主畫面的「教學模式」。</div>
             </aside>
         </div>
+</div>
 </div>
 
     <div id="main-panel" class="relative flex-1 scada-window p-2 my-0.5 bg-[#c0c0c0] flex flex-col justify-between overflow-hidden min-h-[580px]">
@@ -761,6 +800,10 @@
         let autoGv2DelayStartedAtSec = null;
         let autoRpBranchReadyAtMs = null;
         let autoRpBranchBpClosedAtMs = null;
+        let autoRpBranchStepIndex = 0;
+        let autoRpBranchStepAtMs = null;
+        let autoRpBranchStepSimElapsed = 0;
+        let autoRpBranchSteps = [];
         let autoCompletedGuideAtMs = null;
         let cycleElapsedSec = 0;
         let pumpElapsedSec = 0;
@@ -1015,7 +1058,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         let pvAutoPulseSeconds = 0;
         let pvAutoPulseActive = false;
         let rpRunSeconds = 0;
-        let rpStopRemaining = 0;
+        let rpStopRemaining = 0; // Compatibility: stopping itself is immediate.
+        let rpShutdownRequested = false;
         let rpLastInletClosedAtMs = -Infinity;
         let rpInletWasOpen = false;
         const RP_INTERLOCK_SECONDS = 5;
@@ -1231,6 +1275,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function startRpPump() {
+            rpShutdownRequested = false;
             rpStopRemaining = 0;
             rpRunSeconds = 0;
             rpLastInletClosedAtMs = -Infinity;
@@ -1242,18 +1287,25 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function startRpShutdown() {
-            if (!pumps.RP1 || rpStopRemaining > 0) return;
-            // Isolate all RV/FV inlets and the booster first. After the pump has
-            // stopped, pulse PV briefly to bring just its piping back to air.
-            valves.RV1 = false;
-            valves.Slow_RV = false;
-            valves.FV2 = false;
-            valves.FV3 = false;
+            if (!pumps.RP1) return true;
+            syncRpInletClosureWait();
+            if (rpHasOpenInlet()) return false;
+            const age = (performance.now() - rpLastInletClosedAtMs) / 1000;
+            if (currentOpMode !== 'maint' && Number.isFinite(age) && age < RP_INTERLOCK_SECONDS) {
+                rpShutdownRequested = true;
+                return false;
+            }
+            rpShutdownRequested = false;
+            pumps.RP1 = false;
             pumps.BP1 = false;
-            valves.PV1 = false;
-            pvAutoPulseActive = false;
-            pvAutoPulseSeconds = 0;
-            rpStopRemaining = RP_INTERLOCK_SECONDS;
+            rpRunSeconds = 0;
+            rpStopRemaining = 0;
+            valves.PV1 = true;
+            pvAutoPulseActive = true;
+            pvAutoPulseSeconds = 1.5;
+            if (powerSequence.active || autoRegenState.running) recordAutomaticAction();
+            updateStatus('RP1 已立即停止；PV1 短暫通入大氣，使幫浦管路回氣。');
+            return true;
         }
 
         function rpHasOpenInlet() {
@@ -1263,9 +1315,14 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         function syncRpInletClosureWait() {
             const open = rpHasOpenInlet();
             if (open) {
+                rpShutdownRequested = false;
                 rpLastInletClosedAtMs = -Infinity;
                 autoRpBranchReadyAtMs = null;
                 autoRpBranchBpClosedAtMs = null;
+                autoRpBranchStepIndex = 0;
+                autoRpBranchStepAtMs = null;
+                autoRpBranchStepSimElapsed = 0;
+                autoRpBranchSteps = [];
             } else if (rpInletWasOpen && pumps.RP1 && rpStopRemaining === 0) {
                 rpLastInletClosedAtMs = performance.now();
                 scheduleAutoRpBranch();
@@ -1274,9 +1331,6 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function rpCountdown() {
-            if (rpStopRemaining > 0)
-                return { label: 'RP 停機中', detail: '後可再開 RP',
-                    remaining: rpStopRemaining };
             if (!pumps.RP1) return null;
             if (!rpHasOpenInlet() && Number.isFinite(rpLastInletClosedAtMs)) {
                 const elapsed = Math.max(0, (performance.now() - rpLastInletClosedAtMs) / 1000);
@@ -1296,21 +1350,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
         function advanceRpState(dt) {
             syncRpInletClosureWait();
-            if (rpStopRemaining > 0) {
-                rpStopRemaining = Math.max(0, rpStopRemaining - dt);
-                if (rpStopRemaining === 0) {
-                    pumps.RP1 = false;
-                    rpRunSeconds = 0;
-                    valves.PV1 = true;
-                    pvAutoPulseActive = true;
-                    pvAutoPulseSeconds = 1.5;
-                    if (powerSequence.active || autoRegenState.running)
-                        recordAutomaticAction();
-                    updateStatus('RP1 已停止；PV1 短暫回氣，使幫浦管路回到大氣壓。');
-                }
-            } else if (pumps.RP1) {
-                rpRunSeconds += dt;
-            }
+            if (pumps.RP1) rpRunSeconds += dt;
+            if (rpShutdownRequested) startRpShutdown();
         }
 
         function tutorialModeEnabled() {
@@ -1323,8 +1364,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         // 手動、自動流程、開關機都從這張表取文字（guideOf），只改「下一步」或少數情境內文。
         const tutorialGuides = {
             RP1: {
-                on:  { title:'RP1 啟動：建立前級抽氣', body:'RP1 是粗抽的起點，要先運轉才有抽氣力。此時只有幫浦在轉，腔體尚未接通。', next:'下一步：開啟 RV1，接通 CH1 開始粗抽。' },
-                off: { title:'RP1 停止：結束前級抽氣', body:'先關閉 RV／FV 等抽氣閥再停 RP1，避免幫浦在錯誤閥位下抽氣。', next:'下一步：PV1 短暫回氣，讓管路回到常壓。' }
+                on:  { title:'RP1 啟動：建立前級抽氣', body:'RP1 啟動後先倒數 5 秒，倒數完成才可開啟 RV／FV。RP 左側會顯示剩餘時間。', next:'下一步：倒數完成後，依需要開啟 RV 或 FV。' },
+                off: { title:'RP1 停止：結束前級抽氣', body:'所有 RV／FV 關閉滿 5 秒後即可停止 RP1。按下關閉會立即停止，不再追加停機倒數。', next:'下一步：PV1 短暫回氣，讓管路回到常壓。' }
             },
             BP1: {
                 on:  { title:'BP1 啟動：加強低壓抽氣', body:'BP1 是 RP1 的加強幫浦，壓力低於 10 Torr 才適合啟動，不能取代 RP1。', next:'下一步：RP1 與 BP1 一起抽氣，壓力持續下降。' },
@@ -1332,38 +1373,38 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             },
             RV1: {
                 on:  { title:'RV1 開啟：接通 CH1 與 RP1', body:'RV1 開啟後，RP1 開始抽走 CH1 的氣體，壓力逐步下降。開 GV2 前必須先關閉 RV1。', next:'下一步：壓力低於 10 Torr 後啟動 BP1。' },
-                off: { title:'RV1 關閉：隔離 CH1 粗抽路徑', body:'CH1 與 RP1 的抽氣路徑切斷，CH1 不再被 RP1 抽氣。', next:'下一步：開啟 GV2，或停止 BP1／RP1。' }
+                off: { title:'RV1 關閉：隔離 CH1 粗抽路徑', body:'RV1 路徑已切斷；若 Slow RV 仍開啟，CH1 仍會被粗抽。所有 RV／FV 全關後才開始計算可關 RP 的 5 秒。', next:'下一步：開啟 GV2，或停止 BP1／RP1。' }
             },
             Slow_RV: {
                 on:  { title:'Slow RV 開啟：慢速接通 RP1', body:'Slow RV 是細管徑的 RV，同樣把 CH1 接到 RP1，但流量小、抽得較慢較平順。它不是另一台幫浦。', next:'下一步：壓力下降後改開 RV1 加速抽氣。' },
                 off: { title:'Slow RV 關閉：切斷慢速抽氣', body:'CH1 經細管抽向 RP1 的路徑已切斷。', next:'下一步：需要抽氣時改開 RV1。' }
             },
             FV2: {
-                on:  { title:'FV2 開啟：RP1 抽 CP2 前級', body:'FV2 把 CP2 下方的前級管路接到 RP1。FV2 與 RV1 共用 RP1，同時開會讓兩邊都變慢。', next:'下一步：前級壓力達標後啟動 CP2。' },
-                off: { title:'FV2 關閉：隔離 CP2 前級', body:'CP2 前級與 RP1 的連通切斷，前級不再被抽氣。', next:'下一步：CP2 停機或再生前，先確認 FV2 已關閉。' }
+                on:  { title:'FV2 開啟：RP1 抽 CP2 本體', body:'FV2 將 CP2 本體接到 RP1，供預抽與再生抽氣使用。FV2 與 RV1 共用 RP1，同時開會讓兩邊都變慢。', next:'下一步：CP2 壓力達標後，先關 FV2 與 MV2，再啟動 CP2。' },
+                off: { title:'FV2 關閉：隔離 CP2 前級', body:'CP2 經 FV2 通往 RP1 的路徑切斷；低溫 CP 自身的捕集仍可繼續。', next:'下一步：CP2 停機或再生前，先確認 FV2 已關閉。' }
             },
             FV3: {
-                on:  { title:'FV3 開啟：RP1 抽 CP3 前級', body:'FV3 把 CP3 下方的前級管路接到 RP1。FV3 與 RV1 共用 RP1，同時開會讓兩邊都變慢。', next:'下一步：前級壓力達標後啟動 CP3。' },
-                off: { title:'FV3 關閉：隔離 CP3 前級', body:'CP3 前級與 RP1 的連通切斷，前級不再被抽氣。', next:'下一步：CP3 停機或再生前，先確認 FV3 已關閉。' }
+                on:  { title:'FV3 開啟：RP1 抽 CP3 本體', body:'FV3 將 CP3 本體接到 RP1，供預抽與再生抽氣使用。FV3 與 RV1 共用 RP1，同時開會讓兩邊都變慢。', next:'下一步：CP3 壓力達標後，先關 FV3 與 MV3，再啟動 CP3。' },
+                off: { title:'FV3 關閉：隔離 CP3 前級', body:'CP3 經 FV3 通往 RP1 的路徑切斷；低溫 CP 自身的捕集仍可繼續。', next:'下一步：CP3 停機或再生前，先確認 FV3 已關閉。' }
             },
             CP2: {
-                on:  { title:'CP2 啟動：冷卻並開始吸附', body:'CP2 降溫到約 10 K 才能吸附氣體，前級壓力須先降到設定值以下才允許啟動。', next:'下一步：開啟 MV2，讓 CP2 抽 CH2。' },
+                on:  { title:'CP2 啟動：冷卻並開始吸附', body:'CP2 啟動時 MV2／FV2 須關閉，CP 壓力須達啟動門檻。降至 20 K 以下進入正常捕集範圍，並持續降向 10 K。', next:'下一步：開啟 MV2，讓 CP2 抽 CH2。' },
                 off: { title:'CP2 停止：停止冷凍吸附', body:'CP2 停止後會逐漸回溫並釋放吸附的氣體。停機前要先關閉 MV2 與 FV2。', next:'下一步：需要再生時，開啟 PURGE2 回溫。' }
             },
             CP3: {
-                on:  { title:'CP3 啟動：冷卻並開始吸附', body:'CP3 降溫到約 10 K 才能吸附氣體，前級壓力須先降到設定值以下才允許啟動。', next:'下一步：開啟 MV3，讓 CP3 抽 CH3。' },
+                on:  { title:'CP3 啟動：冷卻並開始吸附', body:'CP3 啟動時 MV3／FV3 須關閉，CP 壓力須達啟動門檻。降至 20 K 以下進入正常捕集範圍，並持續降向 10 K。', next:'下一步：開啟 MV3，讓 CP3 抽 CH3。' },
                 off: { title:'CP3 停止：停止冷凍吸附', body:'CP3 停止後會逐漸回溫並釋放吸附的氣體。停機前要先關閉 MV3 與 FV3。', next:'下一步：需要再生時，開啟 PURGE3 回溫。' }
             },
             MV2: {
-                on:  { title:'MV2 開啟：接通 CH2 與 CP2', body:'MV2 是 CH2 與 CP2 之間的隔離閥，開啟後 CP2 才能抽 CH2。開啟前壓力須符合互鎖條件。', next:'下一步：CP2 持續抽 CH2，壓力降到高真空。' },
-                off: { title:'MV2 關閉：隔離 CH2 與 CP2', body:'CP2 與 CH2 的通路切斷，CP2 即使運轉也不再抽 CH2。', next:'下一步：可破真空，或讓 CP2 待命。' }
+                on:  { title:'MV2 開啟：接通 CH2 與 CP2', body:'MV2 是 CH2 與 CP2 之間的隔離閥，開啟後 CP2 才能抽 CH2。高壓開啟會提示 CP 升溫與負載風險，壓力警告本身不禁止操作；其他閥位互鎖仍生效。', next:'下一步：CP2 持續抽 CH2，壓力降到高真空。' },
+                off: { title:'MV2 關閉：隔離 CH2 與 CP2', body:'CP2 與 CH2 的通路切斷，CP2 即使運轉也不再抽 CH2。', next:'下一步：若要破真空，先確認同一連通空間的其他 CP 也已隔離。' }
             },
             MV3: {
-                on:  { title:'MV3 開啟：接通 CH3 與 CP3', body:'MV3 是 CH3 與 CP3 之間的隔離閥，開啟後 CP3 才能抽 CH3。開啟前壓力須符合互鎖條件。', next:'下一步：CP3 持續抽 CH3，壓力降到高真空。' },
-                off: { title:'MV3 關閉：隔離 CH3 與 CP3', body:'CP3 與 CH3 的通路切斷，CP3 即使運轉也不再抽 CH3。', next:'下一步：可破真空，或讓 CP3 待命。' }
+                on:  { title:'MV3 開啟：接通 CH3 與 CP3', body:'MV3 是 CH3 與 CP3 之間的隔離閥，開啟後 CP3 才能抽 CH3。高壓開啟會提示 CP 升溫與負載風險，壓力警告本身不禁止操作；其他閥位互鎖仍生效。', next:'下一步：CP3 持續抽 CH3，壓力降到高真空。' },
+                off: { title:'MV3 關閉：隔離 CH3 與 CP3', body:'CP3 與 CH3 的通路切斷，CP3 即使運轉也不再抽 CH3。', next:'下一步：若要破真空，先確認同一連通空間的其他 CP 也已隔離。' }
             },
             GV2: {
-                on:  { title:'GV2 開啟：連通 CH1 與後段腔體', body:'GV2 開啟後，CH1 與後段腔體成為同一個抽氣空間，真空度同步下降。', next:'下一步：等完整的抽氣延遲，再開始傳動。' },
+                on:  { title:'GV2 開啟：連通 CH1 與後段腔體', body:'GV2 開啟後，CH1 與後段腔體連通，氣體跨腔流動；壓力由兩側氣量與持續抽氣共同決定。', next:'下一步：等完整的抽氣延遲，再開始傳動。' },
                 off: { title:'GV2 關閉：隔離 CH1 與後段腔體', body:'後段腔體保持真空，CH1 可獨立進出料或破真空。', next:'下一步：CH1 可停止抽氣並破真空。' }
             },
             GV1: {
@@ -1372,11 +1413,11 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             },
             PV1: {
                 on:  { title:'PV1 開啟：RP 管路回氣', body:'RP1 停止後，PV1 讓抽氣管路回到接近大氣壓，避免管路保持負壓。它不是用來破真空腔體。', next:'下一步：回氣完成後關閉 PV1。' },
-                off: { title:'PV1 關閉：結束管路回氣', body:'RP 管路已回到接近大氣壓，回氣結束。', next:'下一步：RP 管路回到待命狀態。' }
+                off: { title:'PV1 關閉：結束管路回氣', body:'PV1 進氣路徑已關閉，管路不再由 PV1 補入大氣；目前壓力取決於先前回氣量與抽氣狀態。', next:'下一步：RP 管路回到待命狀態。' }
             },
             Vent: {
-                on:  { title:'Vent 開啟：CH1 破真空', body:'外部空氣經 Vent 進入 CH1，壓力回升到接近大氣壓，之後才能開 GV1。', next:'下一步：壓力到位後關閉 Vent，再開 GV1。' },
-                off: { title:'Vent 關閉：停止進氣', body:'CH1 不再進氣，壓力維持目前數值。', next:'下一步：壓差達標後開啟 GV1。' }
+                on:  { title:'Vent 開啟：CH1 破真空', body:'氮氣經 Vent 進入 CH1，壓力回升到接近大氣壓，之後才能開 GV1。', next:'下一步：壓力到位後關閉 Vent，再開 GV1。' },
+                off: { title:'Vent 關閉：停止進氣', body:'Vent 已停止通氮氣；其他進氣、抽氣與背景氣體仍會影響 CH1 壓力。', next:'下一步：壓差達標後開啟 GV1。' }
             },
             Slow: {
                 on:  { title:'Slow Vent 開啟：慢速破真空', body:'Slow Vent 是細管徑的進氣路徑，用途與 Vent 相同，但 CH1 升壓較慢較平順。', next:'下一步：壓力到位後關閉，再開 GV1。' },
@@ -1391,15 +1432,15 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 off: { title:'V1.2 關閉：停止 CH1 通入 O₂', body:'CH1 不再補充氧氣。', next:'下一步：需要 RF 清潔時再開啟 V1.2。' }
             },
             VB1: {
-                on:  { title:'VB1 開啟：接通 CH1 氣體支路', body:'VB1 開啟後，V1.1／V1.2 的氣體才有通路進入 CH1。', next:'下一步：開啟 V1.1 或 V1.2 進氣。' },
-                off: { title:'VB1 關閉：隔離 CH1 氣體支路', body:'氣體支路與 CH1 切斷，V1.1／V1.2 即使開啟也進不了 CH1。', next:'下一步：需要進氣時再開啟 VB1。' }
+                on:  { title:'VB1 開啟：接通 BG1 真空計', body:'VB1 將 BG1 接通 CH1，讓 BG1 量測腔體壓力。VB1 沒有進氣功能。', next:'下一步：觀察 BG1，依 RF 啟動壓力設定判斷。' },
+                off: { title:'VB1 關閉：隔離 BG1 真空計', body:'BG1 與 CH1 隔離；V1.1／V1.2 的進氣不由 VB1 控制。', next:'下一步：需要量測 CH1 製程壓力時再開啟 VB1。' }
             },
             VB2: {
-                on:  { title:'VB2 開啟：接通後段 Ar 支路', body:'VB2 是後段 Ar 進氣支路的隔離閥，開啟後 V2 的 Ar 氣才能進入製程區。', next:'下一步：開啟 V2，依 Layer 的 MFC2 流量供氣。' },
-                off: { title:'VB2 關閉：隔離後段 Ar 支路', body:'後段 Ar 進氣支路切斷，V2 即使開啟也進不了製程區。', next:'下一步：鍍膜前需再開啟 VB2。' }
+                on:  { title:'VB2 開啟：接通 BG2 真空計', body:'VB2 將 BG2 接通後段腔體，量測製程壓力。VB2 不控制 V2／V3 的 Ar 進氣。', next:'下一步：觀察 BG2 是否落在製程設定範圍。' },
+                off: { title:'VB2 關閉：隔離 BG2 真空計', body:'BG2 與後段腔體隔離；V2／V3 仍可依各自閥位供應 Ar。', next:'下一步：鍍膜前需再開啟 VB2。' }
             },
             V2: {
-                on:  { title:'V2 開啟：CH2 通入 Ar', body:'V2 是 CH2 的 Ar 進氣閥，搭配 VB2 與 MFC2 維持鍍膜氣氛。', next:'下一步：壓力穩定後，DC 靶通電鍍膜。' },
+                on:  { title:'V2 開啟：CH2 通入 Ar', body:'V2 是 CH2 的 Ar 進氣閥，流量由 MFC2 設定；VB2 用於接通 BG2 量測。', next:'下一步：壓力穩定後，DC 靶通電鍍膜。' },
                 off: { title:'V2 關閉：停止 CH2 通入 Ar', body:'CH2 停止供應 Ar 氣。', next:'下一步：鍍膜前需再開啟 V2。' }
             },
             V3: {
@@ -1415,7 +1456,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 off: { title:'PURGE3 關閉：結束充氮', body:'CP3 的充氮路徑已關閉。', next:'下一步：開啟 FV3，用 RP1 抽回前級真空。' }
             },
             RF: {
-                on:  { title:'RF 通電：CH1 電漿清潔', body:'RF 高頻電場讓 Ar 游離成 Ar⁺，Ar⁺ 轟擊表面，去除污染與殘留膜。通電前需先建立真空並通入清潔氣體。', next:'下一步：清潔時間到後，RF 斷電並關閉清潔氣體。' },
+                on:  { title:'RF 通電：CH1 電漿清潔', body:'RF 電場使現場的清潔氣體形成電漿；效果取決於氣體存量與 RF 功率，可依設定使用 Ar 或 O₂。', next:'下一步：清潔時間到後，RF 斷電並關閉清潔氣體。' },
                 off: { title:'RF 斷電：結束電漿清潔', body:'CH1 不再產生電漿，清潔停止。', next:'下一步：關閉清潔氣體，準備鍍膜。' }
             },
             DC1_A: {
@@ -1451,9 +1492,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
         const powerSequenceGuides = {
             // ---- 開機 ----
-            'startup-rp': guideOf('RP1', true, { next:'下一步：開啟 FV，進行 CP 再生。' }),
+            'startup-rp': guideOf('RP1', true, { next:'下一步：依再生流程交替進行 PURGE 與 FV 抽氣。' }),
             'startup-regen': { anchor:'PURGE2', title:'CP2／CP3 再生', body:'CP 吸附的氣體要先清空（使用率回到 0%）才能重新使用。再生完成後保留 RP1 運轉，不再重抽前級。', next:'下一步：啟動 CP2／CP3 降溫。' },
-            'startup-cp': guideOf('CP2', true, { title:'CP2／CP3 啟動：冷卻並開始吸附', body:'CP 降溫到約 10 K 才能吸附氣體，FV 關閉、前級壓力達標後才啟動。降溫期間同步粗抽四腔。', next:'下一步：準備 GV1／GV2，開始粗抽四腔。' }),
+            'startup-cp': guideOf('CP2', true, { title:'CP2／CP3 啟動：冷卻並開始吸附', body:'CP 降至 20 K 以下進入正常捕集範圍，持續降向 10 K；MV／FV 關閉、CP 壓力達標後才啟動。降溫期間同步粗抽四腔。', next:'下一步：準備 GV1／GV2，開始粗抽四腔。' }),
             'startup-prepare': { anchor:'GV2', title:'準備四腔：關 GV1、開 GV2', body:'關閉 GV1 與各抽氣、進氣閥，再開啟 GV2，讓 CH1 與後段腔體連成一個抽氣空間（四腔）。', next:'下一步：開啟 RV1，粗抽四腔。' },
             'startup-rv': guideOf('RV1', true, { title:'RV1 開啟：粗抽四腔', body:'RV1 開啟後，RP1 抽走四腔的氣體。壓力實際降到 10 Torr 以下，才會啟動 BP1。', next:'下一步：壓力低於 10 Torr 後啟動 BP1。' }),
             'startup-bp': guideOf('BP1', true, { body:'BP1 與 RP1 一起抽氣，四腔壓力下降更快；CP 同時持續降溫。', next:'下一步：等 CP 降到 20 K 以下、四腔達接通壓力。' }),
@@ -1470,7 +1511,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             'shutdown-gv1': guideOf('GV1', false, { title:'GV1 關閉：確認進料門隔離', body:'確認載盤沒有卡在門區且 GV1 已關到位；仍開啟的，流程會先關閉。', next:'下一步：確認 GV2 開啟，讓四腔能一起破真空。' }),
             'shutdown-gv2': guideOf('GV2', true, { title:'GV2 開啟：確認四腔連通', body:'必要時先讓兩側壓力接近、隔離 RV／FV／RP，再讓 GV2 開到位，四腔才能一起破真空。', next:'下一步：關閉 MV2／MV3，隔離 CP。' }),
             'shutdown-mv': { anchor:'MV2', title:'MV2／MV3 關閉：隔離冷凍泵', body:'先隔離兩台 CP，才能對四腔破真空。', next:'下一步：開啟 Vent，讓四腔回到大氣。' },
-            'shutdown-vent': guideOf('Vent', true, { title:'Vent 開啟：四腔破真空', body:'GV2 已開啟且 MV 已關閉，外部空氣進入四腔，壓力回到大氣。', next:'下一步：回到大氣後關閉 Vent 與 Slow Vent。' }),
+            'shutdown-vent': guideOf('Vent', true, { title:'Vent 開啟：四腔破真空', body:'GV2 已開啟且 MV 已關閉，氮氣進入四腔，壓力回到大氣。', next:'下一步：回到大氣後關閉 Vent 與 Slow Vent。' }),
             'shutdown-vent-isolate': guideOf('Vent', false, { title:'Vent 關閉：停止進氣', body:'四腔已回到大氣，關閉 Vent 與 Slow Vent。', next:'下一步：確認 FV2／FV3 關閉，準備停止 CP。' }),
             'shutdown-fv-isolate': { anchor:'FV2', title:'FV2／FV3 關閉：隔離 CP 前級', body:'確認 FV2／FV3 已關閉，再進行 CP 停機。', next:'下一步：停止 CP2／CP3。' },
             'shutdown-cp-stop': { anchor:'CP2', title:'CP2／CP3 停止：停止冷凍吸附', body:'先停止兩台 CP，下一步才開 PURGE 回溫，兩件事分開進行。', next:'下一步：開啟 PURGE2／PURGE3 充氮回溫。' },
@@ -2037,7 +2078,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (item.type === 'valve') {
                 const nextState = !valves[item.id];
                 if (item.id === 'GV1' || item.id === 'GV2') {
-                    startGateTransition(item.id, nextState);
+                    if (startGateTransition(item.id, nextState))
+                        showTutorialForElement(item, nextState);
                     return;
                 }
                 if (!canToggleValve(item.id, nextState)) return;
@@ -2120,7 +2162,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                         }
                         startRpShutdown();
                         syncBpWarning();
-                        return updateStatus(`RV／FV／BP 已關；RP1 再運轉 ${RP_INTERLOCK_SECONDS} 秒後停止，PV 隨後短暫回氣。`);
+                        showTutorialForElement(item, false);
+                        return updateStatus('RP1 已立即停止；PV1 短暫通入大氣，使管路回氣。');
                     }
                     startRpPump();
                 } else {
@@ -4865,7 +4908,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                             state.regenCycles++;
                             const programmed = autoRegenState.running &&
                                 autoRegenState.pumps.includes(cp) ?
-                                100 / autoRegenState.settings.cycles + 1e-6 : CP_REGEN_CYCLE_PCT;
+                                100 / autoRegenState.settings.cycles + 1e-6 :
+                                powerSequence.active && powerSequence.custom && powerSequence.mode === 'startup' ?
+                                    100 / powerSequence.cycles + 1e-6 : CP_REGEN_CYCLE_PCT;
                             state.regenBudgetPct = Math.min(programmed, state.usagePct);
                             state.regenReleasedPct = 0;
                             state.regenRecoveredPct = 0;
@@ -5494,7 +5539,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             }
 
             advanceAutoProcess(dt * simulationSpeed);
-            advanceAutoRpBranch();
+            advanceAutoRpBranch(dt * simulationSpeed);
             expireAutoCompletionGuide();
 
             renderSCADA();
@@ -5687,7 +5732,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             } else {
                 movePowerPanelToMain();
             }
-            if (system) { renderAutoFlowEditor(); renderGuideEditor(); }
+            if (system) setSystemSettingsTab(systemSettingsTab);
             setDashboardVisibility();
         }
 
@@ -6141,11 +6186,14 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             }
         }
 
-        function advanceAutoRpBranch() {
+        function advanceAutoRpBranch(dtSim = 0) {
             if (autoRpBranchReadyAtMs === null) return;
             if (!pumps.RP1 || rpStopRemaining > 0) {
                 autoRpBranchReadyAtMs = null;
                 autoRpBranchBpClosedAtMs = null;
+                autoRpBranchStepAtMs = null;
+                autoRpBranchStepSimElapsed = 0;
+                autoRpBranchSteps = [];
                 return;
             }
             // This foreline branch is independent of GV2 travel, its pumping
@@ -6157,29 +6205,58 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             // If a promised step stalls past the window, the branch resumes.
             if (autoFlowReopensInletSoon() &&
                 now - autoRpBranchReadyAtMs <
-                    autoFlowWaitMs('rp-branch-reopen',30000)) return;
+                    autoFlowWaitMs('rp-branch-reopen',30000)) {
+                autoRpBranchStepAtMs = now;
+                autoRpBranchStepSimElapsed = 0;
+                return;
+            }
             // The final regeneration cycle hands its running RP directly to
             // chamber roughing; CP cooldown may exceed the ordinary window.
             if (startupRegenNeedsRpHandoff()) return;
-            if (pumps.BP1) {
-                if (now - autoRpBranchReadyAtMs <
-                    autoFlowWaitMs('rp-branch-bp', AUTO_TYPE_STEP_INTERVAL_MS)) return;
-                pumps.BP1 = false;
-                autoRpBranchBpClosedAtMs = now;
-                updateStatus('RP 支線：RV／FV 已隔離，BP1 已關閉；主線照常執行。');
+            const step = autoRpBranchSteps[autoRpBranchStepIndex];
+            if (!step) {
+                autoRpBranchReadyAtMs = null;
+                autoRpBranchStepAtMs = null;
+                autoRpBranchStepSimElapsed = 0;
                 return;
             }
-            const inletClosedAt = Number.isFinite(rpLastInletClosedAtMs) ?
-                rpLastInletClosedAtMs : autoRpBranchReadyAtMs;
-            if (now - inletClosedAt <
-                    autoFlowWaitMs('rp-branch-rp', RP_INTERLOCK_SECONDS * 1000) ||
-                (autoRpBranchBpClosedAtMs !== null &&
-                 now - autoRpBranchBpClosedAtMs <
-                    autoFlowWaitMs('rp-branch-bp', AUTO_TYPE_STEP_INTERVAL_MS))) return;
-            autoRpBranchReadyAtMs = null;
-            autoRpBranchBpClosedAtMs = null;
-            startRpShutdown();
-            updateStatus(`RP 支線：RV／FV 全關已滿 ${autoFlowSeconds('rp-branch-rp', RP_INTERLOCK_SECONDS)} 秒，RP1 開始停機；主線照常執行。`);
+            if (autoRpBranchStepAtMs === null) autoRpBranchStepAtMs = autoRpBranchReadyAtMs;
+            if (!autoFlowConditionReady(step)) {
+                autoRpBranchStepAtMs = now;
+                autoRpBranchStepSimElapsed = 0;
+                return;
+            }
+            autoRpBranchStepSimElapsed += dtSim;
+            const duration = step.action === 'wait_rf_duration' ? autoRfSeconds :
+                step.action === 'wait_gv2_delay' ? autoDelayGv2Sec :
+                step.action === 'wait_layer_delay' ? autoLayers[activeAutoLayerIndex].delay :
+                step.seconds;
+            const simulationTime = ['wait_sim_time','wait_rf_duration',
+                'wait_gv2_delay','wait_layer_delay'].includes(step.action);
+            if (step.action.startsWith('wait_') &&
+                (simulationTime ? autoRpBranchStepSimElapsed :
+                    (now - autoRpBranchStepAtMs) / 1000) < duration) return;
+            if (step.action === 'pump_off' && step.target === 'RP1' &&
+                now - (Number.isFinite(rpLastInletClosedAtMs) ?
+                    rpLastInletClosedAtMs : autoRpBranchReadyAtMs) < RP_INTERLOCK_SECONDS * 1000)
+                return;
+            if (!step.action.startsWith('wait_')) {
+                if (!applyAutoFlowAction(step)) return;
+                showAutoFlowStepGuide(step, true);
+            }
+            if (step.action === 'pump_off' && step.target === 'BP1')
+                updateStatus('RP 支線：RV／FV 已隔離，BP1 已關閉；主線照常執行。');
+            if (step.action === 'pump_off' && step.target === 'RP1')
+                updateStatus('RP 支線：RV／FV 全關已滿 5 秒，RP1 已停止；PV 短暫回氣，主線照常執行。');
+            autoRpBranchStepIndex++;
+            autoRpBranchStepAtMs = now;
+            autoRpBranchStepSimElapsed = 0;
+            if (autoRpBranchStepIndex >= autoRpBranchSteps.length) {
+                autoRpBranchReadyAtMs = null;
+                autoRpBranchStepAtMs = null;
+                autoRpBranchStepSimElapsed = 0;
+                autoRpBranchSteps = [];
+            }
         }
 
         function prepareNextAutoLayer() {
@@ -6235,7 +6312,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             ['gate-closing-return','GV2 關閉'], ['rp-stopping','出料前 RP 確認'],
             ['vent-out','出料破真空'], ['gate-opening-unload','GV1 出料開啟'],
             ['unloading','載盤退回平台'], ['gate-closing-finish','GV1 出料關閉'],
-            ['standby-finish','VENT 待機']
+            ['standby-finish','VENT 待機'], ['rp-branch','RP 停泵支線（獨立執行）']
         ];
         const AUTO_FLOW_WAITS = [
             ['gate-opening-load','GV1 開後進料',2,0],
@@ -6269,7 +6346,16 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             motor_right:['1','2','3','4'], motor_left:['0','1','2','3'], motor_stop:[],
             rf_gas_on:['V1_1','V1_2'], recipe_target_on:dcLayerTargets,
             recipe_target_off:dcLayerTargets,
-            recipe_drive:[], return_drive:[]
+            recipe_drive:[], return_drive:[],
+            motor_section_right:['0','1','2','3','4'],
+            motor_section_left:['0','1','2','3','4'],
+            recipe_motor_section:['1','2','3','4'], return_motor_section:['1','2','3','4'],
+            wait_time:[], wait_sim_time:[], wait_gv1_open:[], wait_gv1_closed:[],
+            wait_gv2_open:[], wait_gv2_closed:[], wait_carrier:['0','1','2','3','4','pass_end'],
+            wait_atmosphere:[], wait_rp_ready:[], wait_cg1_bp:[], wait_cg1_limit:[],
+            wait_bg1_limit:[], wait_ig2_limit:[], wait_gate_diff:[],
+            wait_cg1:[],wait_bg1:[],wait_ig2:[],
+            wait_rf_duration:[], wait_gv2_delay:[], wait_layer_delay:[]
         };
         const AUTO_FLOW_ACTION_NAMES = { wait:'只等待／提示', valve_open:'開啟閥門',
             valve_close:'關閉閥門', pump_on:'啟動幫浦', pump_off:'停止幫浦',
@@ -6277,54 +6363,112 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             motor_left:'載盤向左傳動', motor_stop:'停止傳動',
             rf_gas_on:'依 RF 設定開氣體', recipe_target_on:'依配方點單支 DC',
             recipe_target_off:'單支 DC 斷電', recipe_drive:'依本層趟數傳動',
-            return_drive:'載盤返回 CH1' };
+            return_drive:'載盤返回 CH1', motor_section_right:'單區向右傳動',
+            motor_section_left:'單區向左傳動', recipe_motor_section:'本趟單區傳動',
+            return_motor_section:'返回 CH1 單區傳動',
+            wait_time:'等待實際秒數', wait_sim_time:'等待模擬秒數',
+            wait_gv1_open:'等待 GV1 開到位',wait_gv1_closed:'等待 GV1 關到位',
+            wait_gv2_open:'等待 GV2 開到位',wait_gv2_closed:'等待 GV2 關到位',
+            wait_carrier:'等待載盤雙感應器',wait_atmosphere:'等待 CH1 到大氣壓',
+            wait_rp_ready:'等待 RP 運轉滿 5 秒',wait_cg1_bp:'等待 CG1 達 E+00',
+            wait_cg1_limit:'等待 CG1 達 RF 門檻',wait_bg1_limit:'等待 BG1 達 RF 門檻',
+            wait_ig2_limit:'等待 IG2 達鍍膜門檻',wait_gate_diff:'等待 GV2 壓差允許',
+            wait_cg1:'等待 CG1 ≤ 指定值',wait_bg1:'等待 BG1 ≤ 指定值',
+            wait_ig2:'等待 IG2 ≤ 指定值',
+            wait_rf_duration:'等待 RF 設定時間',wait_gv2_delay:'等待 GV2 抽氣延遲',
+            wait_layer_delay:'等待本層 Delay Time' };
         const AUTO_FLOW_DEFAULT_ACTIONS = [
+            ['waiting-vent','CH1 大氣壓','wait_atmosphere',''],
             ['gate-opening-load','GV1 進料開門','valve_open','GV1'],
             ['gate-opening-load','關 VENT','valve_close','Vent'],
             ['gate-opening-load','關 SLOW VENT','valve_close','Slow'],
-            ['loading','平台與 CH1 送入載盤','motor_right','1'],
+            ['gate-opening-load','GV1 開到位','wait_gv1_open',''],
+            ['gate-opening-load','開門後 2 秒','wait_time','',2],
+            ['loading','平台向右','motor_section_right','0'],
+            ['loading','CH1 向右','motor_section_right','1'],
+            ['loading','載盤到 CH1','wait_carrier','1'],
+            ['loading','定位後 2 秒','wait_time','',2],
             ['gate-closing-load','GV1 進料關門','valve_close','GV1'],
+            ['gate-closing-load','GV1 關到位','wait_gv1_closed',''],
+            ['gate-closing-load','關門後 2 秒','wait_time','',2],
             ['rp-starting','啟動 RP1','pump_on','RP1'],
+            ['rp-starting','RP 預熱','wait_rp_ready',''],
             ['roughing','開啟 RV1','valve_open','RV1'],
+            ['roughing','RV 開後 2 秒','wait_time','',2],
+            ['roughing','CG1 達 E+00','wait_cg1_bp',''],
             ['roughing-bp','啟動 BP1','pump_on','BP1'],
+            ['roughing-bp','BP 開後 2 秒','wait_time','',2],
+            ['roughing-bp','CG1 達 RF 門檻','wait_cg1_limit',''],
             ['rf-gas-stabilize','依配方開 V1.1','rf_gas_on','V1_1'],
             ['rf-gas-stabilize','依配方開 V1.2','rf_gas_on','V1_2'],
             ['rf-gas-stabilize','開啟 VB1','valve_open','VB1'],
+            ['rf-gas-stabilize','RF 通氣後 2 秒','wait_time','',2],
+            ['rf-gas-stabilize','BG1 達啟動壓力','wait_bg1_limit',''],
             ['rf-cleaning','啟動 RF','target_on','RF'],
+            ['rf-cleaning','RF 清潔時間','wait_rf_duration',''],
             ['prepare-gv2','關閉 RF','target_off','RF'],
             ['prepare-gv2','關 V1.1','valve_close','V1_1'],
             ['prepare-gv2','關 V1.2','valve_close','V1_2'],
             ['prepare-gv2','關 VB1','valve_close','VB1'],
+            ['prepare-gv2','GV2 兩側壓差','wait_gate_diff',''],
             ['gate-opening-process','隔離 RV1','valve_close','RV1'],
             ['gate-opening-process','隔離 SLOW RV','valve_close','Slow_RV'],
             ['gate-opening-process','開 GV2','valve_open','GV2'],
+            ['gate-opening-process','GV2 開到位','wait_gv2_open',''],
+            ['gate-opening-process','GV2 抽氣延遲','wait_gv2_delay',''],
+            ['gate-opening-process','IG2 達鍍膜壓力','wait_ig2_limit',''],
             ['sputter-gas-stabilize','開 V2 Ar','valve_open','V2'],
             ['sputter-gas-stabilize','開 V3 Ar','valve_open','V3'],
             ['sputter-gas-stabilize','開 VB2','valve_open','VB2'],
-            ['positioning','載盤移至 CH2','motor_right','2'],
+            ['sputter-gas-stabilize','通 Ar 後 2 秒','wait_time','',2],
+            ['positioning','CH1 向右','motor_section_right','1'],
+            ['positioning','CH2 向右','motor_section_right','2'],
+            ['positioning','載盤到 CH2','wait_carrier','2'],
+            ['positioning','定位後 2 秒','wait_time','',2],
             ...dcLayerTargets.map(id => ['sputter-dc-stabilize',`${id} 點靶`,'recipe_target_on',id]),
-            ['coating','依趟數與方向傳動','recipe_drive',''],
+            ['layer-delay','本層 Delay Time','wait_layer_delay',''],
+            ['layer-delay','DC 後傳動間隔','wait_time','',2],
+            ...['1','2','3','4'].map(sec => ['coating',`CH${sec} 本趟傳動`,'recipe_motor_section',sec]),
+            ['coating','本趟到終點','wait_carrier','pass_end'],
+            ['pass-reverse-wait','換向停頓','wait_time','',2],
             ['return-motor-wait','關 V2 Ar','valve_close','V2'],
             ['return-motor-wait','關 V3 Ar','valve_close','V3'],
             ['return-motor-wait','關 VB2','valve_close','VB2'],
             ...dcLayerTargets.map(id => ['return-motor-wait',`${id} 斷電`,'recipe_target_off',id]),
-            ['layer-return-ch1','換層回 CH1','return_drive',''],
-            ['return-ch1','鍍完回 CH1','return_drive',''],
+            ['return-motor-wait','回 CH1 前停頓','wait_time','',2],
+            ...['1','2','3','4'].map(sec => ['layer-return-ch1',`CH${sec} 回程傳動`,'return_motor_section',sec]),
+            ['layer-return-ch1','載盤回 CH1','wait_carrier','1'],
+            ['next-layer-wait','換層間隔','wait_time','',2],
+            ...['1','2','3','4'].map(sec => ['return-ch1',`CH${sec} 回程傳動`,'return_motor_section',sec]),
+            ['return-ch1','載盤回 CH1','wait_carrier','1'],
             ['gate-closing-return','GV2 出料前關門','valve_close','GV2'],
+            ['gate-closing-return','GV2 關到位','wait_gv2_closed',''],
             ['rp-stopping','確認隔離 RV1','valve_close','RV1'],
             ['rp-stopping','確認隔離 SLOW RV','valve_close','Slow_RV'],
+            ['rp-stopping','出料前停頓','wait_time','',2],
             ['vent-out','開 VENT 出料','valve_open','Vent'],
             ['vent-out','開 SLOW VENT 出料','valve_open','Slow'],
+            ['vent-out','CH1 到大氣壓','wait_atmosphere',''],
             ['gate-opening-unload','GV1 出料開門','valve_open','GV1'],
             ['gate-opening-unload','關 VENT','valve_close','Vent'],
             ['gate-opening-unload','關 SLOW VENT','valve_close','Slow'],
-            ['unloading','載盤退回平台','motor_left','0'],
+            ['gate-opening-unload','GV1 開到位','wait_gv1_open',''],
+            ['gate-opening-unload','開門後 2 秒','wait_time','',2],
+            ['unloading','平台向左','motor_section_left','0'],
+            ['unloading','CH1 向左','motor_section_left','1'],
+            ['unloading','載盤回平台','wait_carrier','0'],
             ['gate-closing-finish','GV1 出料關門','valve_close','GV1'],
+            ['gate-closing-finish','GV1 關到位','wait_gv1_closed',''],
+            ['gate-closing-finish','關門後 2 秒','wait_time','',2],
             ['standby-finish','待機開 VENT','valve_open','Vent'],
-            ['standby-finish','待機開 SLOW VENT','valve_open','Slow']
-        ].map(([before,name,action,target],index) => ({
+            ['standby-finish','待機開 SLOW VENT','valve_open','Slow'],
+            ['rp-branch','隔離後等待 2 秒','wait_time','',2],
+            ['rp-branch','關閉 BP1','pump_off','BP1'],
+            ['rp-branch','再等待 3 秒','wait_time','',3],
+            ['rp-branch','停止 RP1','pump_off','RP1']
+        ].map(([before,name,action,target,seconds=0],index) => ({
             id:`default-${String(index + 1).padStart(2,'0')}`, before,name,action,target,
-            seconds:0,condition:'none',threshold:0
+            seconds,condition:'none',threshold:0
         }));
         const AUTO_FLOW_CONDITIONS = { none:'只看秒數', cg1:'CG1 ≤ 門檻',
             bg1:'BG1 ≤ 門檻', ig2:'IG2 ≤ 門檻', atmosphere:'CH1 達大氣',
@@ -6335,6 +6479,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         let activeAutoFlowSteps = [];
         let autoFlowPending = null;
         let autoFlowStepCounter = 0;
+        const autoFlowExpandedStages = new Set(['waiting-vent','gate-opening-load']);
 
         function autoFlowDefaultSeconds(key) {
             if (key === 'rf-cleaning') return autoRfSeconds;
@@ -6346,6 +6491,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 autoFlowWaitOverrides[key] : autoFlowDefaultSeconds(key);
         }
         function autoFlowSeconds(key, fallbackSec = autoFlowDefaultSeconds(key)) {
+            // The visible atomic wait steps now own the main-line timing.
+            // Phase checks below still enforce sensors and physical limits.
+            if (isAutoRunning && !key.startsWith('rp-branch-')) return 0;
             const runningBranch = key.startsWith('rp-branch-') &&
                 autoRpBranchReadyAtMs !== null;
             const settings = (isAutoRunning || runningBranch) ?
@@ -6364,7 +6512,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         function normalizeAutoFlowStep(raw) {
             if (!raw || typeof raw !== 'object' || !AUTO_FLOW_TARGETS[raw.action] ||
                 !AUTO_FLOW_PHASES.some(row => row[0] === raw.before) ||
-                !Object.prototype.hasOwnProperty.call(AUTO_FLOW_CONDITIONS, raw.condition)) return null;
+                !Object.prototype.hasOwnProperty.call(AUTO_FLOW_CONDITIONS,
+                    raw.condition || 'none')) return null;
             const seconds = Number(raw.seconds), threshold = Number(raw.threshold);
             if (!Number.isFinite(seconds) || seconds < 0 || seconds > 3600 ||
                 !Number.isFinite(threshold) || threshold < 0 || threshold > 760) return null;
@@ -6372,42 +6521,180 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             return { id:`af${++autoFlowStepCounter}`, before:raw.before,
                 name:String(raw.name || '自訂步驟').slice(0,60), action:raw.action,
                 target:options.includes(raw.target) ? raw.target : options[0] || '',
-                seconds, condition:raw.condition, threshold };
+                seconds, condition:raw.condition || 'none', threshold };
         }
         function saveAutoFlowSettings() {
             try { window.localStorage?.setItem(AUTO_FLOW_STORE_KEY,
-                JSON.stringify({ version:2, waits:autoFlowWaitOverrides,
+                JSON.stringify({ version:3, waits:autoFlowWaitOverrides,
                     steps:autoFlowSteps })); }
             catch (error) { setAutoFlowStatus('瀏覽器無法儲存設定；本頁關閉後會失效。'); }
+        }
+        function convertLegacyFlowSettings(data) {
+            const steps = AUTO_FLOW_DEFAULT_ACTIONS.map(step => ({...step}));
+            if (data.version === 2) {
+                const legacyActions = [
+                    ['gate-opening-load','GV1 進料開門','valve_open','GV1'],
+                    ['gate-opening-load','關 VENT','valve_close','Vent'],
+                    ['gate-opening-load','關 SLOW VENT','valve_close','Slow'],
+                    ['loading','平台與 CH1 送入載盤','motor_right','1'],
+                    ['gate-closing-load','GV1 進料關門','valve_close','GV1'],
+                    ['rp-starting','啟動 RP1','pump_on','RP1'],
+                    ['roughing','開啟 RV1','valve_open','RV1'],
+                    ['roughing-bp','啟動 BP1','pump_on','BP1'],
+                    ['rf-gas-stabilize','依配方開 V1.1','rf_gas_on','V1_1'],
+                    ['rf-gas-stabilize','依配方開 V1.2','rf_gas_on','V1_2'],
+                    ['rf-gas-stabilize','開啟 VB1','valve_open','VB1'],
+                    ['rf-cleaning','啟動 RF','target_on','RF'],
+                    ['prepare-gv2','關閉 RF','target_off','RF'],
+                    ['prepare-gv2','關 V1.1','valve_close','V1_1'],
+                    ['prepare-gv2','關 V1.2','valve_close','V1_2'],
+                    ['prepare-gv2','關 VB1','valve_close','VB1'],
+                    ['gate-opening-process','隔離 RV1','valve_close','RV1'],
+                    ['gate-opening-process','隔離 SLOW RV','valve_close','Slow_RV'],
+                    ['gate-opening-process','開 GV2','valve_open','GV2'],
+                    ['sputter-gas-stabilize','開 V2 Ar','valve_open','V2'],
+                    ['sputter-gas-stabilize','開 V3 Ar','valve_open','V3'],
+                    ['sputter-gas-stabilize','開 VB2','valve_open','VB2'],
+                    ['positioning','載盤移至 CH2','motor_right','2'],
+                    ...dcLayerTargets.map(id => ['sputter-dc-stabilize',`${id} 點靶`,'recipe_target_on',id]),
+                    ['coating','依趟數與方向傳動','recipe_drive',''],
+                    ['return-motor-wait','關 V2 Ar','valve_close','V2'],
+                    ['return-motor-wait','關 V3 Ar','valve_close','V3'],
+                    ['return-motor-wait','關 VB2','valve_close','VB2'],
+                    ...dcLayerTargets.map(id => ['return-motor-wait',`${id} 斷電`,'recipe_target_off',id]),
+                    ['layer-return-ch1','換層回 CH1','return_drive',''],
+                    ['return-ch1','鍍完回 CH1','return_drive',''],
+                    ['gate-closing-return','GV2 出料前關門','valve_close','GV2'],
+                    ['rp-stopping','確認隔離 RV1','valve_close','RV1'],
+                    ['rp-stopping','確認隔離 SLOW RV','valve_close','Slow_RV'],
+                    ['vent-out','開 VENT 出料','valve_open','Vent'],
+                    ['vent-out','開 SLOW VENT 出料','valve_open','Slow'],
+                    ['gate-opening-unload','GV1 出料開門','valve_open','GV1'],
+                    ['gate-opening-unload','關 VENT','valve_close','Vent'],
+                    ['gate-opening-unload','關 SLOW VENT','valve_close','Slow'],
+                    ['unloading','載盤退回平台','motor_left','0'],
+                    ['gate-closing-finish','GV1 出料關門','valve_close','GV1'],
+                    ['standby-finish','待機開 VENT','valve_open','Vent'],
+                    ['standby-finish','待機開 SLOW VENT','valve_open','Slow']
+                ];
+                const bundledMotors = {loading:'motor_section_right',
+                    positioning:'motor_section_right',coating:'recipe_motor_section',
+                    'layer-return-ch1':'return_motor_section',
+                    'return-ch1':'return_motor_section',unloading:'motor_section_left'};
+                legacyActions.forEach(([phase,name,action,target],index) => {
+                    const id = `default-${String(index + 1).padStart(2,'0')}`;
+                    const old = data.steps.find(item => item.id === id);
+                    const matching = item => item.before === phase &&
+                        (item.name === name ||
+                         (bundledMotors[phase] === item.action &&
+                          ['motor_right','motor_left','recipe_drive','return_drive'].includes(action)));
+                    if (old && old.before === phase && old.name === name &&
+                        old.action === action && old.target === target) return;
+                    for (let i=steps.length-1;i>=0;i--)
+                        if (matching(steps[i]) && !steps[i].action.startsWith('wait_'))
+                            steps.splice(i,1);
+                    if (old) {
+                        const changed = normalizeAutoFlowStep({...old,seconds:0,condition:'none'});
+                        if (changed) {
+                            const last = steps.findLastIndex(item => item.before === changed.before);
+                            steps.splice(last + 1,0,changed);
+                        }
+                    }
+                });
+            }
+            // Older versions stored delays separately. Carry their numbers to
+            // the matching independent wait rows in the new sequence.
+            const waits = {
+                'gate-opening-load':['gate-opening-load','開門後 2 秒'],
+                loading:['loading','定位後 2 秒'],
+                'gate-closing-load':['gate-closing-load','關門後 2 秒'],
+                roughing:['roughing-bp','BP 開後 2 秒'],
+                'rf-gas-stabilize':['rf-gas-stabilize','RF 通氣後 2 秒'],
+                'rf-cleaning':['rf-cleaning','RF 清潔時間'],
+                'gate-opening-process':['gate-opening-process','GV2 抽氣延遲'],
+                'sputter-gas-stabilize':['sputter-gas-stabilize','通 Ar 後 2 秒'],
+                positioning:['positioning','定位後 2 秒'],
+                'layer-delay':['layer-delay','DC 後傳動間隔'],
+                'pass-reverse-wait':['pass-reverse-wait','換向停頓'],
+                'return-motor-wait':['return-motor-wait','回 CH1 前停頓'],
+                'next-layer-wait':['next-layer-wait','換層間隔'],
+                'rp-stopping':['rp-stopping','出料前停頓'],
+                'gate-opening-unload':['gate-opening-unload','開門後 2 秒'],
+                'gate-closing-finish':['gate-closing-finish','關門後 2 秒']
+            };
+            for (const [key,value] of Object.entries(data.waits || {})) {
+                if (key === 'rp-branch-reopen') continue;
+                const [phase,name] = waits[key] || [];
+                const step = steps.find(item => item.before === phase && item.name === name);
+                if (!step) continue;
+                const seconds = Number(value);
+                if (!Number.isFinite(seconds) || seconds < 0 || seconds > 3600) continue;
+                if (['rf-cleaning','gate-opening-process'].includes(key))
+                    step.action = 'wait_sim_time';
+                step.seconds = seconds;
+            }
+            const branchBp = Number(data.waits?.['rp-branch-bp'] ?? 2);
+            const branchRp = Number(data.waits?.['rp-branch-rp'] ?? 5);
+            const branchWaits = steps.filter(item => item.before === 'rp-branch' &&
+                item.action === 'wait_time');
+            branchWaits[0].seconds = Math.max(0,branchBp);
+            branchWaits[1].seconds = Math.max(0,branchRp - branchBp);
+            for (const raw of data.steps || []) {
+                const defaultFromV2 = data.version === 2 && /^default-\d+$/.test(raw.id || '');
+                if (raw.action === 'wait' && raw.condition === 'none' && !Number(raw.seconds))
+                    continue;
+                const action = normalizeAutoFlowStep({...raw,seconds:0,condition:'none'});
+                if (!action) continue;
+                const actionIndex = steps.findIndex(item => item.before === action.before &&
+                    item.name === raw.name && !item.action.startsWith('wait_'));
+                const last = actionIndex < 0 ?
+                    steps.findLastIndex(item => item.before === action.before) : actionIndex;
+                if (!defaultFromV2 && raw.action !== 'wait') steps.splice(last + 1,0,action);
+                if (raw.condition !== 'none' || Number(raw.seconds) > 0) {
+                    const waitAction = {cg1:'wait_cg1',bg1:'wait_bg1',ig2:'wait_ig2',
+                        atmosphere:'wait_atmosphere',gv1:'wait_gv1_open',
+                        gv2:'wait_gv2_open',carrier:'wait_carrier'}[raw.condition] || 'wait_time';
+                    const wait = normalizeAutoFlowStep({before:action.before,
+                        name:`等待：${action.name}`,action:waitAction,
+                        target:waitAction === 'wait_carrier' ?
+                            (raw.action.startsWith('motor_') ? raw.target :
+                                String(Math.round(raw.threshold))) : '',
+                        seconds:Number(raw.seconds) || 0,threshold:Number(raw.threshold) || 0,
+                        condition:'none'});
+                    if (wait) steps.splice(last + (defaultFromV2 || raw.action === 'wait' ? 1 : 2),0,wait);
+                }
+            }
+            return steps;
+        }
+        function decodeAutoFlowSettings(data) {
+            if (!data || ![1,2,3].includes(data.version) ||
+                !Array.isArray(data.steps) || data.steps.length > 200) throw Error('format');
+            const waits = {};
+            for (const row of AUTO_FLOW_WAITS) {
+                if (!Object.prototype.hasOwnProperty.call(data.waits || {},row[0])) continue;
+                const value = Number(data.waits[row[0]]);
+                if (!Number.isFinite(value) || value < row[3] || value > 3600) throw Error('wait');
+                waits[row[0]] = value;
+            }
+            const seen = new Set();
+            const steps = data.version < 3 ? convertLegacyFlowSettings(data) :
+                data.steps.map(raw => normalizeAutoFlowStep(raw));
+            if (steps.some(step => !step)) throw Error('step');
+            if (data.version === 3) steps.forEach((step,index) => {
+                const id = data.steps[index].id;
+                if (typeof id === 'string' && /^(default-\d+|af\d+)$/.test(id) &&
+                    !seen.has(id)) step.id = id;
+                seen.add(step.id);
+            });
+            autoFlowStepCounter = Math.max(autoFlowStepCounter,
+                ...steps.filter(step => /^af\d+$/.test(step.id)).map(step => Number(step.id.slice(2))),0);
+            autoFlowWaitOverrides = waits;
+            autoFlowSteps = steps;
         }
         function loadAutoFlowSettings() {
             try {
                 const data = JSON.parse(window.localStorage?.getItem(AUTO_FLOW_STORE_KEY) || 'null');
-                if (!data || ![1,2].includes(data.version)) return;
-                for (const row of AUTO_FLOW_WAITS) {
-                    const value = Number(data.waits?.[row[0]]);
-                    if (data.waits && Object.prototype.hasOwnProperty.call(data.waits,row[0]) &&
-                        Number.isFinite(value) && value >= row[3] && value <= 3600)
-                        autoFlowWaitOverrides[row[0]] = value;
-                }
-                if (Array.isArray(data.steps)) {
-                    const seen = new Set();
-                    const loaded = data.steps.slice(0,160).map(raw => {
-                        const step = normalizeAutoFlowStep(raw);
-                        if (step && data.version === 2 &&
-                            (AUTO_FLOW_DEFAULT_ACTIONS.some(item => item.id === raw.id) ||
-                             /^af\d+$/.test(raw.id)) && !seen.has(raw.id)) {
-                            step.id = raw.id;
-                            if (raw.id.startsWith('af'))
-                                autoFlowStepCounter = Math.max(autoFlowStepCounter,
-                                    Number(raw.id.slice(2)));
-                        }
-                        if (step) seen.add(step.id);
-                        return step;
-                    }).filter(Boolean);
-                    autoFlowSteps = data.version === 1 ?
-                        [...AUTO_FLOW_DEFAULT_ACTIONS.map(step => ({...step})),...loaded] : loaded;
-                }
+                if (data) decodeAutoFlowSettings(data);
             } catch (error) { /* Corrupt local preferences fall back to defaults. */ }
         }
         function setAutoFlowStatus(message) {
@@ -6437,30 +6724,42 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             saveAutoFlowSettings(); renderAutoFlowEditor();
             setAutoFlowStatus(`${row[1]}的額外等待已移除；感應器和壓差仍需達標。`);
         }
-        function addAutoFlowStep() {
-            const before = document.getElementById('auto-flow-insert-phase').value;
-            const step = normalizeAutoFlowStep({before, name:'自訂等待', action:'wait',
+        function addAutoFlowStep(before) {
+            const step = normalizeAutoFlowStep({before, name:'新增等待', action:'wait_time',
                 seconds:2, condition:'none', threshold:0, target:''});
-            if (!step || autoFlowSteps.length >= 160) return;
+            if (!step || autoFlowSteps.length >= 200) return;
             const last = autoFlowSteps.findLastIndex(item => item.before === before);
             autoFlowSteps.splice(last < 0 ? autoFlowSteps.length : last + 1,0,step);
+            autoFlowExpandedStages.add(before);
             saveAutoFlowSettings(); renderAutoFlowEditor();
-            setAutoFlowStatus('已新增；修改欄位後會儲存。');
+            setAutoFlowStatus('已新增等待步驟；可選擇操作與設備。');
         }
         function updateAutoFlowStep(id, field, raw) {
             const step = autoFlowSteps.find(item => item.id === id);
             if (!step) return;
             const candidate = { ...step, [field]:raw };
-            if (field === 'action') candidate.target = autoFlowAllowedTargets(raw)[0] || '';
-            if (field === 'action' && raw.startsWith('motor_') && raw !== 'motor_stop')
-                candidate.condition = 'carrier';
-            if (field === 'condition' && raw !== 'none')
-                candidate.threshold = raw === 'cg1' ? gaugeParameters.cg1 :
-                    raw === 'bg1' ? autoRfPressureTorr :
-                    raw === 'ig2' ? gaugeParameters.ig2 : 0;
+            if (field === 'action') {
+                candidate.target = autoFlowAllowedTargets(raw)[0] || '';
+                candidate.condition = 'none';
+                candidate.seconds = ['wait_time','wait_sim_time'].includes(raw) ? 2 : 0;
+                candidate.threshold = raw === 'wait_cg1' ? gaugeParameters.cg1 :
+                    raw === 'wait_bg1' ? autoRfPressureTorr :
+                    raw === 'wait_ig2' ? gaugeParameters.ig2 : 0;
+            }
+            if (field === 'action' || field === 'target')
+                candidate.name = `${AUTO_FLOW_ACTION_NAMES[candidate.action]}${candidate.target ?
+                    ' ' + (candidate.target === 'pass_end' ? '本趟終點' : candidate.target) : ''}`;
+            if (field === 'seconds' && /\d+(?:\.\d+)?\s*秒/.test(candidate.name))
+                candidate.name = candidate.name.replace(/\d+(?:\.\d+)?\s*秒/,`${raw} 秒`);
             const normalized = normalizeAutoFlowStep(candidate);
             if (!normalized) { setAutoFlowStatus('步驟設定無效，請檢查數值及選項。'); renderAutoFlowEditor(); return; }
             Object.assign(step, normalized, {id});
+            if (field === 'before') {
+                autoFlowSteps = autoFlowSteps.filter(item => item !== step);
+                const last = autoFlowSteps.findLastIndex(item => item.before === raw);
+                autoFlowSteps.splice(last < 0 ? autoFlowSteps.length : last + 1,0,step);
+                autoFlowExpandedStages.add(raw);
+            }
             saveAutoFlowSettings(); renderAutoFlowEditor();
             setAutoFlowStatus('步驟已儲存；下一次自動流程套用。');
         }
@@ -6480,56 +6779,71 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             saveAutoFlowSettings(); renderAutoFlowEditor();
         }
         function resetAutoFlowSettings() {
-            if (!window.confirm('還原所有自動流程等待與自訂步驟？')) return;
+            if (!window.confirm('還原所有自動流程步驟與 RP 支線設定？')) return;
             autoFlowWaitOverrides = {};
             autoFlowSteps = AUTO_FLOW_DEFAULT_ACTIONS.map(step => ({...step}));
             saveAutoFlowSettings(); renderAutoFlowEditor();
             setAutoFlowStatus('已還原；正在執行的流程不受影響。');
         }
         function renderAutoFlowEditor() {
-            const waits = document.getElementById('auto-flow-waits');
             const custom = document.getElementById('auto-flow-custom');
-            const insert = document.getElementById('auto-flow-insert-phase');
-            if (!waits || !custom || !insert) return;
-            const selected = insert.value;
-            insert.innerHTML = AUTO_FLOW_PHASES.map(([key,name]) =>
+            const filter = document.getElementById('auto-flow-stage-filter');
+            if (!custom || !filter) return;
+            const selected = filter.value || 'all';
+            filter.innerHTML = '<option value="all">全部階段</option>' + AUTO_FLOW_PHASES.map(([key,name]) =>
                 `<option value="${key}">${autoFlowEscape(name)}</option>`).join('');
-            insert.value = AUTO_FLOW_PHASES.some(row => row[0] === selected) ? selected : 'prepare-gv2';
-            waits.innerHTML = AUTO_FLOW_WAITS.map(([key,label,,minimum]) => {
-                const overridden = Object.prototype.hasOwnProperty.call(autoFlowWaitOverrides,key);
-                return `<div class="auto-flow-row"><b>${key.startsWith('rp-branch') ? 'RP 支線' : '主線'}</b>
-                    <span>${autoFlowEscape(label)}</span><span class="auto-flow-hint">${overridden ? '自訂' : '預設／參數連動'}</span>
-                    <input type="number" min="${minimum}" max="3600" step="0.1" value="${configuredAutoFlowSeconds(key)}"
-                      aria-label="${autoFlowEscape(label)}秒數" onchange="setAutoFlowWait('${key}',this)">
-                    <span class="auto-flow-hint">${key === 'rp-branch-rp' || key === 'rp-starting' ? '互鎖至少 5 秒' :
-                        key === 'rf-cleaning' || key === 'gate-opening-process' ? '模擬秒' : '實際秒'}</span><span>秒</span>
-                    <span class="buttons">${minimum === 0 ? `<button type="button" class="scada-button" onclick="removeAutoFlowWait('${key}')">刪等待</button>` : ''}
-                    <button type="button" class="scada-button" onclick="resetAutoFlowWait('${key}')">還原</button></span></div>`;
-            }).join('');
+            filter.value = selected;
+            document.getElementById('auto-flow-reopen').value =
+                configuredAutoFlowSeconds('rp-branch-reopen');
             const options = (items,current) => items.map(([value,label]) =>
                 `<option value="${value}" ${value === current ? 'selected' : ''}>${autoFlowEscape(label)}</option>`).join('');
-            custom.innerHTML = autoFlowSteps.length ? autoFlowSteps.map(step => {
-                const phases = options(AUTO_FLOW_PHASES, step.before);
-                const actions = options(Object.entries(AUTO_FLOW_ACTION_NAMES), step.action);
-                const targets = options(autoFlowAllowedTargets(step.action).map(t =>
-                    [t,step.action.startsWith('motor_') ? (t === '0' ? '平台' : `CH${t}`) : t]),step.target);
-                const conditions = options(Object.entries(AUTO_FLOW_CONDITIONS), step.condition);
+            const simpleActions = Object.entries(AUTO_FLOW_ACTION_NAMES).filter(([action]) =>
+                !['wait','motor_right','motor_left','motor_stop','recipe_drive','return_drive'].includes(action));
+            custom.innerHTML = AUTO_FLOW_PHASES.filter(([phase]) => selected === 'all' || phase === selected)
+                .map(([phase,title]) => {
+                const steps = autoFlowSteps.filter(step => step.before === phase);
+                const rows = steps.map((step,index) => {
+                const actions = options(simpleActions.some(row => row[0] === step.action) ?
+                    simpleActions : [[step.action,AUTO_FLOW_ACTION_NAMES[step.action]],...simpleActions],step.action);
+                const targets = options(autoFlowAllowedTargets(step.action).map(t => [t,
+                    t === 'pass_end' ? '本趟終點' :
+                    (step.action.includes('motor') || step.action === 'wait_carrier') ?
+                        (t === '0' ? '平台' : `CH${t}`) : t]),step.target);
                 const update = (field) => `updateAutoFlowStep('${step.id}','${field}',this.value)`;
+                const time = ['wait_time','wait_sim_time'].includes(step.action);
+                const pressure = ['wait_cg1','wait_bg1','wait_ig2'].includes(step.action);
+                const dynamic = {wait_rf_duration:`RF 設定 ${autoRfSeconds} 模擬秒`,
+                    wait_gv2_delay:`GV2 設定 ${autoDelayGv2Sec} 模擬秒`,
+                    wait_layer_delay:'依本層 Delay Time（模擬秒）',
+                    wait_rp_ready:'RP 物理互鎖至少 5 秒'}[step.action];
+                const value = time ? `<input aria-label="等待秒數" type="number" min="0" max="3600" step="0.1" value="${step.seconds}" onchange="${update('seconds')}"> ${step.action === 'wait_sim_time' ? '模擬秒' : '實際秒'}` :
+                    pressure ? `<input aria-label="壓力門檻 Torr" type="number" min="0" max="760" step="any" value="${step.threshold}" onchange="${update('threshold')}"> Torr` :
+                    dynamic || (step.action.startsWith('wait_') ? '條件達標才繼續' : '動作完成即繼續');
                 return `<div class="auto-flow-row">
-                    <select aria-label="插入階段" onchange="${update('before')}">${phases}</select>
-                    <input aria-label="步驟名稱" maxlength="60" value="${autoFlowEscape(step.name)}" onchange="${update('name')}">
-                    <select aria-label="步驟動作" onchange="${update('action')}">${actions}</select>
-                    <select aria-label="動作目標" onchange="${update('target')}" ${targets ? '' : 'disabled'}>${targets || '<option value="">－</option>'}</select>
-                    <select aria-label="完成條件" onchange="${update('condition')}">${conditions}</select>
-                    <span><input aria-label="額外等待秒數" type="number" min="0" max="3600" step="0.1" value="${step.seconds}" onchange="${update('seconds')}"> 秒
-                    <input aria-label="條件門檻" type="number" min="0" max="760" step="any" value="${step.threshold}" title="壓力條件用 Torr；載盤條件用 0=平台、1～4=CH" onchange="${update('threshold')}"> 門檻 Torr／CH</span>
-                    <span class="buttons"><button type="button" class="scada-button" onclick="moveAutoFlowStep('${step.id}',-1)">↑</button>
-                    <button type="button" class="scada-button" onclick="moveAutoFlowStep('${step.id}',1)">↓</button>
-                    <button type="button" class="scada-button" onclick="removeAutoFlowStep('${step.id}')">刪除</button></span></div>`;
-            }).join('') : '<p class="auto-flow-hint">目前沒有動作；可在上方選階段並新增。</p>';
+                    <span class="step-index">${String(index + 1).padStart(2,'0')}</span>
+                    <select aria-label="第${index + 1}步操作" onchange="${update('action')}">${actions}</select>
+                    <select aria-label="設備或位置" onchange="${update('target')}" ${targets ? '' : 'disabled'}>${targets || '<option value="">－</option>'}</select>
+                    <span class="step-value">${value}</span>
+                    <span class="buttons"><button type="button" class="scada-button" title="上移一步" onclick="moveAutoFlowStep('${step.id}',-1)">↑</button>
+                    <button type="button" class="scada-button" title="下移一步" onclick="moveAutoFlowStep('${step.id}',1)">↓</button>
+                    <button type="button" class="scada-button" onclick="removeAutoFlowStep('${step.id}')">刪</button></span>
+                    <span class="step-description">${autoFlowEscape(step.name)} · 移到
+                    <select aria-label="移動到其他階段" style="width:155px" onchange="${update('before')}">${options(AUTO_FLOW_PHASES,step.before)}</select></span></div>`;
+                }).join('');
+                const expanded = selected !== 'all' || autoFlowExpandedStages.has(phase);
+                return `<details class="auto-flow-stage" ${expanded ? 'open' : ''} ontoggle="setAutoFlowStageExpanded('${phase}',this.open)">
+                    <summary>${autoFlowEscape(title)}　${steps.length} 步${phase === 'rp-branch' ? '｜與主線同時執行' : ''}</summary>
+                    <div class="auto-flow-column-head"><span>順序</span><span>操作</span><span>設備／位置</span><span>數值／時間</span><span>調整</span></div>
+                    ${rows || '<p class="auto-flow-hint" style="padding:7px">這個階段尚無步驟。</p>'}
+                    <button type="button" class="scada-button stage-add" onclick="addAutoFlowStep('${phase}')">＋ 在此新增一步</button></details>`;
+            }).join('');
+        }
+        function setAutoFlowStageExpanded(phase,opened) {
+            if (opened) autoFlowExpandedStages.add(phase);
+            else autoFlowExpandedStages.delete(phase);
         }
         function exportAutoFlowSettings() {
-            const payload = {version:2, waits:autoFlowWaitOverrides,
+            const payload = {version:3, waits:autoFlowWaitOverrides,
                 steps:autoFlowSteps};
             const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
             const link = document.createElement('a');
@@ -6544,20 +6858,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             reader.onload = () => {
                 try {
                     const data = JSON.parse(String(reader.result));
-                    if (![1,2].includes(data.version) || !Array.isArray(data.steps) || !data.waits ||
-                        typeof data.waits !== 'object' || data.steps.length > 160) throw Error('format');
-                    const nextWaits = {};
-                    for (const [key,,,minimum] of AUTO_FLOW_WAITS) {
-                        if (!Object.prototype.hasOwnProperty.call(data.waits,key)) continue;
-                        const seconds = Number(data.waits[key]);
-                        if (!Number.isFinite(seconds) || seconds < minimum || seconds > 3600) throw Error('wait');
-                        nextWaits[key] = seconds;
-                    }
-                    const nextSteps = data.steps.map(normalizeAutoFlowStep);
-                    if (nextSteps.some(step => !step)) throw Error('step');
-                    autoFlowWaitOverrides = nextWaits;
-                    autoFlowSteps = data.version === 1 ?
-                        [...AUTO_FLOW_DEFAULT_ACTIONS.map(step => ({...step})),...nextSteps] : nextSteps;
+                    decodeAutoFlowSettings(data);
                     saveAutoFlowSettings(); renderAutoFlowEditor();
                     setAutoFlowStatus('匯入完成；下一次啟動套用。');
                 } catch (error) { setAutoFlowStatus('匯入失敗：檔案格式或數值不正確。'); }
@@ -6567,6 +6868,34 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         loadAutoFlowSettings();
 
         function autoFlowConditionReady(step) {
+            switch (step.action) {
+                case 'wait_gv1_open': return valves.GV1 && !gateTransitions.GV1;
+                case 'wait_gv1_closed': return !valves.GV1 && !gateTransitions.GV1;
+                case 'wait_gv2_open': return valves.GV2 && !gateTransitions.GV2;
+                case 'wait_gv2_closed': return !valves.GV2 && !gateTransitions.GV2;
+                case 'wait_rp_ready': return pumps.RP1 && rpStopRemaining === 0 &&
+                    rpRunSeconds >= RP_INTERLOCK_SECONDS;
+                case 'wait_cg1_bp': return Number(formatGaugePressure(cgGaugePressure('ch1'))) <
+                    BP1_WARNING_PRESSURE_TORR;
+                case 'wait_cg1_limit': return cgGaugePressure('ch1') <= gaugeParameters.cg1;
+                case 'wait_bg1_limit': return bgPressure.bg1 <= autoRfPressureTorr;
+                case 'wait_ig2_limit': return igGaugePressure('ch2') <= gaugeParameters.ig2;
+                case 'wait_cg1': return cgGaugePressure('ch1') <= step.threshold;
+                case 'wait_bg1': return bgPressure.bg1 <= step.threshold;
+                case 'wait_ig2': return igGaugePressure('ch2') <= step.threshold;
+                case 'wait_gate_diff': return Math.abs(chamberPressure.ch1 - chamberPressure.ch2) <=
+                    vacuumParameters.gateOpenDiffTorr;
+                case 'wait_atmosphere': return Math.abs(ATM_PRESSURE_TORR - chamberPressure.ch1) <=
+                    Math.min(AUTO_ATMOSPHERIC_TOLERANCE_TORR,vacuumParameters.gateOpenDiffTorr);
+                case 'wait_carrier': {
+                    const section = step.target === 'pass_end' ?
+                        (autoPassCompleted % 2 === 0 ? autoCoatingEndSec : autoCoatingStartSec) :
+                        Number(step.target);
+                    return isCarrierAtSensor(section, FRONT_SENSOR_OFFSET_MM) &&
+                        isCarrierAtSensor(section, REAR_SENSOR_OFFSET_MM) &&
+                        motorStates.every(dir => dir === 0);
+                }
+            }
             switch (step.condition) {
                 case 'cg1': return cgGaugePressure('ch1') <= step.threshold;
                 case 'bg1': return bgPressure.bg1 <= step.threshold;
@@ -6602,11 +6931,20 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             const inletOpen = step => step.action === 'valve_open' &&
                 ['RV1','Slow_RV','FV2','FV3'].includes(step.target);
             const horizon = autoFlowWaitMs('rp-branch-reopen',30000);
+            const estimatedMs = step => {
+                const seconds = step.action === 'wait_rf_duration' ? autoRfSeconds :
+                    step.action === 'wait_gv2_delay' ? autoDelayGv2Sec :
+                    step.action === 'wait_layer_delay' ?
+                        autoLayers[activeAutoLayerIndex].delay : step.seconds;
+                return seconds * 1000 / (['wait_rf_duration','wait_gv2_delay',
+                    'wait_layer_delay','wait_sim_time'].includes(step.action) ?
+                    simulationSpeed : 1);
+            };
             let soonestMs = 0;
             if (autoFlowPending) {
                 for (const step of autoFlowPending.steps.slice(autoFlowPending.index + 1)) {
                     if (inletOpen(step)) return soonestMs <= horizon;
-                    soonestMs += step.seconds * 1000;
+                    soonestMs += estimatedMs(step);
                 }
             }
             const phase = autoFlowPending?.phase || autoPhase;
@@ -6618,25 +6956,41 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             for (const [key] of AUTO_FLOW_PHASES.slice(index + (autoFlowPending ? 1 : 0))) {
                 for (const step of activeAutoFlowSteps.filter(item => item.before === key)) {
                     if (inletOpen(step)) return soonestMs <= horizon;
-                    soonestMs += step.seconds * 1000;
+                    soonestMs += estimatedMs(step);
                 }
-                const wait = autoFlowSeconds(key,autoFlowDefaultSeconds(key)) * 1000;
-                soonestMs += ['rf-cleaning','gate-opening-process'].includes(key) ?
-                    wait / simulationSpeed : wait;
                 if (soonestMs > horizon) return false;
             }
             return false;
         }
         function scheduleAutoRpBranch() {
+            // Editable power sequences explicitly schedule their RP actions.
+            if (powerSequence.active && powerSequence.custom) return;
             if ((isAutoRunning || autoRegenState.running || powerSequence.active) &&
                 pumps.RP1 && !rpHasOpenInlet() && autoRpBranchReadyAtMs === null) {
                 autoRpBranchReadyAtMs = performance.now();
                 autoRpBranchBpClosedAtMs = null;
+                autoRpBranchStepIndex = 0;
+                autoRpBranchStepAtMs = autoRpBranchReadyAtMs;
+                autoRpBranchStepSimElapsed = 0;
+                autoRpBranchSteps = (isAutoRunning ? activeAutoFlowSteps : autoFlowSteps)
+                    .filter(step => step.before === 'rp-branch').map(step => ({...step}));
             }
         }
         function applyAutoFlowAction(step) {
             const on = step.action.endsWith('_open') || step.action.endsWith('_on');
-            if (step.action === 'rf_gas_on') {
+            if (step.action.startsWith('wait_')) return true;
+            if (step.action === 'motor_section_right' || step.action === 'motor_section_left') {
+                if (carrierPosMM < 0) return false;
+                motorStates[Number(step.target)] = step.action === 'motor_section_right' ? 1 : -1;
+            } else if (step.action === 'recipe_motor_section') {
+                const sec = Number(step.target);
+                if (sec >= autoCoatingStartSec && sec <= autoCoatingEndSec)
+                    motorStates[sec] = autoPassCompleted % 2 === 0 ? 1 : -1;
+            } else if (step.action === 'return_motor_section') {
+                const sec = Number(step.target);
+                if (sec <= pendingAutoReturnEndSec && pendingAutoReturnEndSec > 1)
+                    motorStates[sec] = -1;
+            } else if (step.action === 'rf_gas_on') {
                 const gas = step.target === 'V1_1' ? 'Ar' : 'O2';
                 if (autoRfGases.has(gas)) return applyAutoFlowAction({...step,action:'valve_open'});
             } else if (step.action === 'recipe_target_on') {
@@ -6698,6 +7052,67 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             } else if (step.action === 'motor_stop') stopAllMotors();
             return true;
         }
+        function showAutoFlowStepGuide(step, branch = false) {
+            if (!tutorialModeEnabled()) return;
+            const steps = branch ? autoRpBranchSteps : autoFlowPending?.steps || [];
+            const index = branch ? autoRpBranchStepIndex : autoFlowPending?.index || 0;
+            const previous = steps.slice(0,index).reverse().find(row => row.target &&
+                tutorialGuides[row.target]);
+            const waitAnchors = {
+                wait_rp_ready:'RP1', wait_cg1_bp:'BP1', wait_cg1_limit:'RV1', wait_cg1:'RV1',
+                wait_bg1_limit:'VB1', wait_bg1:'VB1', wait_ig2_limit:'GV2', wait_ig2:'GV2',
+                wait_gate_diff:'GV2', wait_gv1_open:'GV1', wait_gv1_closed:'GV1',
+                wait_gv2_open:'GV2', wait_gv2_closed:'GV2', wait_atmosphere:'Vent',
+                wait_rf_duration:'RF', wait_gv2_delay:'GV2',
+                wait_layer_delay:getAutoTargetRecipe()[0]
+            };
+            let anchor = waitAnchors[step.action] || step.target || previous?.target ||
+                (branch ? 'RP1' : 'GV1');
+            let item = findTutorialItem(anchor);
+            const motor = step.action.includes('motor') || step.action === 'wait_carrier';
+            if (motor) {
+                const sec = step.target === 'pass_end' ?
+                    (autoPassCompleted % 2 === 0 ? autoCoatingEndSec : autoCoatingStartSec) :
+                    Number(step.target);
+                item = clickTargets.find(t => t.type === 'arrow' && t.sec === sec &&
+                    t.dir === (motorStates[sec] || 1)) || item;
+            }
+            if (!item) return;
+            const waiting = step.action.startsWith('wait_');
+            const actual = Object.prototype.hasOwnProperty.call(valves,step.target) ?
+                (gateTransitions[step.target]?.target ?? valves[step.target]) :
+                Object.prototype.hasOwnProperty.call(pumps,step.target) ? pumps[step.target] :
+                targets[step.target];
+            const skipped = step.action === 'rf_gas_on' && !actual ||
+                step.action === 'recipe_target_on' && !actual;
+            const entry = !waiting && tutorialGuides[step.target]?.[actual ? 'on' : 'off'];
+            let title = entry?.title || step.name;
+            let body = entry?.body || `${AUTO_FLOW_ACTION_NAMES[step.action] || step.name}。`;
+            if (skipped) {
+                title = `略過：${step.target}`;
+                body = step.action === 'rf_gas_on' ? 'RF 配方未勾選此氣體，本步保持關閉。' :
+                    '本層未選此靶或功率為 0 kW，本步保持斷電。';
+            } else if (waiting) {
+                title = step.name;
+                const seconds = step.action === 'wait_rf_duration' ? autoRfSeconds :
+                    step.action === 'wait_gv2_delay' ? autoDelayGv2Sec :
+                    step.action === 'wait_layer_delay' ? autoLayers[activeAutoLayerIndex].delay : step.seconds;
+                const timed = ['wait_time','wait_sim_time','wait_rf_duration','wait_gv2_delay','wait_layer_delay'].includes(step.action);
+                body = timed ? `等待 ${seconds} ${step.action === 'wait_time' ? '實際' : '模擬'}秒後繼續；目前設備保持已設定的狀態。` :
+                    `${AUTO_FLOW_ACTION_NAMES[step.action]}，條件成立後繼續。`;
+                if (['wait_cg1','wait_bg1','wait_ig2'].includes(step.action))
+                    body = `${AUTO_FLOW_ACTION_NAMES[step.action]} ${formatGaugePressure(step.threshold)} Torr，達標後繼續。`;
+            } else if (motor) {
+                body = `依本步設定控制 ${step.target === '0' ? '平台' : 'CH' + step.target} 傳動；實際方向由箭頭顯示。`;
+            }
+            const next = steps[index + 1];
+            const guide = {title,body,next:next ? `下一步：${next.name}` : '下一步：本階段結束，依流程繼續。'};
+            const key = branch ? 'auto-rp-step' : 'auto-phase:atomic';
+            tutorialCards = tutorialCards.filter(card => branch ? card.key !== key :
+                !String(card.key || '').startsWith('auto-phase:'));
+            showTutorialGuide(guide,item,actual,branch ? 'RP 獨立支線' : '自動流程',key,!branch);
+        }
+
         function enterAutoFlowCustomStep() {
             const step = autoFlowPending?.steps[autoFlowPending.index];
             if (!step) return;
@@ -6705,15 +7120,44 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             autoStepSeconds = 0;
             autoPhaseEnteredAtMs = performance.now();
             autoFlowPending.startedAtMs = autoPhaseEnteredAtMs;
+            autoFlowPending.conditionReadyAtMs = null;
+            autoFlowPending.conditionReadyAtSim = null;
             const label = `執行步驟 ${autoFlowPending.index + 1}/${autoFlowPending.steps.length}：${step.name}`;
             setAutoSummary(label); updateStatus(label);
-            if (!applyAutoFlowAction(step)) pauseAutoProcess(`${step.name} 未通過實體互鎖`);
+            if (!applyAutoFlowAction(step)) {
+                pauseAutoProcess(`${step.name} 未通過實體互鎖`);
+                return;
+            }
+            showAutoFlowStepGuide(step);
         }
         function advanceAutoFlowCustomStep() {
             if (!autoFlowPending) return;
             const step = autoFlowPending.steps[autoFlowPending.index];
-            if (performance.now() - autoFlowPending.startedAtMs < step.seconds * 1000 ||
-                !autoFlowConditionReady(step)) return;
+            if (!autoFlowConditionReady(step)) {
+                autoFlowPending.conditionReadyAtMs = null;
+                autoFlowPending.conditionReadyAtSim = null;
+                return;
+            }
+            if (autoFlowPending.conditionReadyAtMs === null) {
+                autoFlowPending.conditionReadyAtMs = performance.now();
+                autoFlowPending.conditionReadyAtSim = autoStepSeconds;
+            }
+            const duration = step.action === 'wait_rf_duration' ? autoRfSeconds :
+                step.action === 'wait_gv2_delay' ? autoDelayGv2Sec :
+                step.action === 'wait_layer_delay' ? autoLayers[activeAutoLayerIndex].delay :
+                step.seconds;
+            const simulationTime = ['wait_rf_duration','wait_gv2_delay','wait_layer_delay',
+                'wait_sim_time'].includes(step.action);
+            const elapsed = simulationTime ?
+                autoStepSeconds - autoFlowPending.conditionReadyAtSim :
+                (performance.now() - autoFlowPending.conditionReadyAtMs) / 1000;
+            if (step.action === 'wait_layer_delay') {
+                autoLayerDelayElapsed = Math.min(duration,elapsed);
+                syncLayerReadouts();
+            }
+            if (step.action.startsWith('wait_') && duration > 0)
+                setAutoSummary(`${step.name}：${Math.min(duration,elapsed).toFixed(1)} / ${duration} ${simulationTime ? '模擬秒' : '實際秒'}`);
+            if (elapsed < duration) return;
             autoFlowPending.index++;
             if (autoFlowPending.index < autoFlowPending.steps.length) {
                 enterAutoFlowCustomStep(); return;
@@ -6727,6 +7171,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (!skipCustom && isAutoRunning && !autoFlowPending) {
                 const steps = activeAutoFlowSteps.filter(step => step.before === phase);
                 if (steps.length) {
+                    if (phase === 'roughing') pumpTimerActive = true;
+                    if (phase === 'rf-cleaning' || phase === 'prepare-gv2')
+                        pumpTimerActive = false;
                     autoFlowPending = {phase,message,steps,index:0};
                     enterAutoFlowCustomStep();
                     return;
@@ -6739,7 +7186,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             autoCarrierPositionedAtMs = null;
             autoGv2DelayStartedAtSec = null;
             autoCompletedGuideAtMs = null;
-            if (phase === 'layer-delay') autoLayerDelayElapsed = 0;
+            if (phase === 'layer-delay' && !skipCustom) autoLayerDelayElapsed = 0;
             if (phase === 'roughing') pumpTimerActive = true;
             if (phase === 'rf-cleaning' || phase === 'prepare-gv2') pumpTimerActive = false;
             syncLayerReadouts();
@@ -6748,7 +7195,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (tutorialModeEnabled()) {
                 // 每進入一個新流程步驟，就只保留一張「目前步驟」教學卡；
                 // 卡片的壽命跟著 autoPhase，而不是自己的倒數計時。
-                showAutoPhaseGuide(phase);
+                if (!skipCustom) showAutoPhaseGuide(phase);
             } else {
                 updateStatus(message);
             }
@@ -6954,6 +7401,10 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     motorStates[0] = -1; motorStates[1] = -1;
                 } else if (autoPhase === 'user-step' && autoFlowPending) {
                     autoFlowPending.startedAtMs = performance.now();
+                    if (autoFlowPending.conditionReadyAtMs !== null)
+                        autoFlowPending.conditionReadyAtMs = autoFlowPending.startedAtMs;
+                    if (autoFlowPending.conditionReadyAtSim !== null)
+                        autoFlowPending.conditionReadyAtSim = autoStepSeconds;
                     if (!applyAutoFlowAction(autoFlowPending.steps[autoFlowPending.index]))
                         return pauseAutoProcess('自訂步驟仍未通過實體互鎖');
                 }
@@ -7111,10 +7562,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     pauseAutoProcess('定位傳動停止，但載盤未到 CH2 起點');
             } else if (autoPhase === 'layer-delay') {
                 const delay = autoLayers[activeAutoLayerIndex].delay;
-                autoLayerDelayElapsed = Math.min(delay, autoStepSeconds);
+                autoLayerDelayElapsed = delay;
                 syncLayerReadouts();
-                setAutoSummary(`第 ${activeAutoLayerIndex + 1}/${autoLayers.length} 層${getAutoTargetRecipe().some(id => targetPowerKw(id) > 0) ? '已點靶' : 'DC 靶 0 kW 空跑'}；等待 ${Math.min(delay, autoStepSeconds).toFixed(1)} / ${delay} 秒後開始傳動`);
-                if (autoStepSeconds >= delay && !waitingForAutoStep()) startAutoLayerPass();
+                startAutoLayerPass();
             } else if (autoPhase === 'coating') {
                 const completedPassIsForward = autoPassCompleted % 2 === 0;
                 const endSec = completedPassIsForward ? autoCoatingEndSec : autoCoatingStartSec;
@@ -7337,6 +7787,403 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             Object.keys(targets).forEach(k => targets[k] = allOn);
             updateStatus(allOn ? "電源測試：全靶材強迫開啟 (Power Test Active)" : "電源測試：全靶材關閉");
         }
+
+        // Editable one-key sequences use the same device actions as the simulator.
+        // Each row is one action or one wait. Regeneration repeats only its visible rows.
+        const POWER_FLOW_STORE_KEY = 'sputterPowerFlows_v1';
+        const POWER_FLOW_GROUPS = {
+            startup:[['prepare','開機前確認／CP 預抽'],['regen','CP 再生循環'],['evacuate','CP 冷卻／四腔抽氣'],['ready','接通 MV／高真空待命']],
+            shutdown:[['checks','關機前確認'],['isolate','隔離粗抽／連通四腔'],['vent','隔離 CP／四腔破真空'],['warm','CP 停機／PURGE 回溫'],['finish','關機收尾']]
+        };
+        const POWER_FLOW_ACTIONS = {
+            valve_open:'開啟一個閥門',valve_close:'關閉一個閥門',pump_on:'啟動一台幫浦',pump_off:'停止一台幫浦',
+            cp_on:'啟動一台 CP',cp_off:'停止一台 CP',target_off:'關閉一支電源',motor_off:'停止一區傳動',
+            wait_interval:'等待步驟間隔',wait_time:'等待實際秒數',wait_sim_time:'等待模擬秒數',
+            wait_rp_ready:'等待 RP 啟動滿 5 秒',wait_rp_off_ready:'等待 RV／FV 全關滿 5 秒',wait_pv_closed:'等待 PV 回氣結束',
+            wait_gv1_open:'等待 GV1 開到位',wait_gv1_closed:'等待 GV1 關到位',wait_gv2_open:'等待 GV2 開到位',wait_gv2_closed:'等待 GV2 關到位',
+            wait_gate_diff:'等待 GV2 壓差允許',wait_pressure_low:'等待壓力 ≤ 指定值',wait_pressure_high:'等待壓力 ≥ 指定值',
+            wait_temp_low:'等待 CP 溫度 ≤ 指定值',wait_temp_high:'等待 CP 溫度 ≥ 指定值',wait_usage:'等待 CP 使用率 ≤ 指定值',
+            wait_regen_purge:'等待本台 CP 的 PURGE 時間',wait_regen_pump:'等待本台 CP 的再生抽氣時間',
+            mark_regen:'標記一台 CP 待再生',counter_reset:'累計片數歸零'
+        };
+        function powerFlowTargets(action) {
+            if (action.startsWith('valve_')) return AUTO_FLOW_VALVES;
+            if (action.startsWith('pump_')) return ['RP1','BP1'];
+            if (action === 'target_off') return ['RF',...dcLayerTargets];
+            if (action === 'motor_off') return ['0','1','2','3','4'];
+            if (action.includes('pressure_')) return ['ch1','ch2','ch3','ch4','cp2','cp3','line'];
+            if (action.startsWith('cp_') || action.includes('temp_') ||
+                ['wait_usage','wait_regen_purge','wait_regen_pump','mark_regen'].includes(action)) return ['CP2','CP3'];
+            return [];
+        }
+        function defaultPowerFlow(mode) {
+            const rows=[];
+            const add=(group,action,target='',value=0,name='')=>rows.push({id:`pf-${mode}-${rows.length+1}`,group,action,target,value,
+                name:name || `${POWER_FLOW_ACTIONS[action]}${target ? ' '+target : ''}`});
+            const act=(g,a,t)=>{add(g,a,t);add(g,'wait_interval');};
+            const close=(g,ids)=>ids.forEach(id=>act(g,'valve_close',id));
+            const wait=(g,a,t='',v=0)=>add(g,a,t,v);
+            if (mode === 'startup') {
+                ['0','1','2','3','4'].forEach(id=>act('prepare','motor_off',id));
+                ['RF',...dcLayerTargets].forEach(id=>act('prepare','target_off',id));
+                close('prepare',['V1_1','V1_2','V2','V3','VB1','VB2','Vent','Slow','RV1','Slow_RV','FV2','FV3','PURGE2','PURGE3','MV2','MV3']);
+                act('prepare','cp_off','CP2');act('prepare','cp_off','CP3');act('prepare','pump_off','BP1');
+                act('prepare','pump_on','RP1');wait('prepare','wait_rp_ready');
+                act('prepare','valve_open','FV2');act('prepare','valve_open','FV3');
+                wait('prepare','wait_pressure_low','cp2',1);wait('prepare','wait_pressure_low','cp3',1);
+                close('prepare',['FV2','FV3']);
+                act('regen','valve_open','PURGE2');act('regen','valve_open','PURGE3');
+                wait('regen','wait_rp_off_ready');act('regen','pump_off','RP1');
+                wait('regen','wait_regen_purge','CP2');wait('regen','wait_regen_purge','CP3');
+                close('regen',['PURGE2','PURGE3']);
+                act('regen','pump_on','RP1');wait('regen','wait_rp_ready');
+                act('regen','valve_open','FV2');act('regen','valve_open','FV3');
+                wait('regen','wait_pressure_low','cp2',1);wait('regen','wait_pressure_low','cp3',1);
+                act('regen','pump_on','BP1');
+                wait('regen','wait_regen_pump','CP2');wait('regen','wait_regen_pump','CP3');
+                close('regen',['FV2','FV3']);act('regen','pump_off','BP1');
+                wait('evacuate','wait_usage','CP2',.1);wait('evacuate','wait_usage','CP3',.1);
+                act('evacuate','cp_on','CP2');act('evacuate','cp_on','CP3');
+                act('evacuate','valve_close','GV1');wait('evacuate','wait_gv1_closed');
+                wait('evacuate','wait_gate_diff');act('evacuate','valve_open','GV2');wait('evacuate','wait_gv2_open');
+                act('evacuate','valve_open','RV1');wait('evacuate','wait_pressure_low','ch1',9);
+                act('evacuate','pump_on','BP1');
+                wait('evacuate','wait_temp_low','CP2',20);wait('evacuate','wait_temp_low','CP3',20);
+                wait('evacuate','wait_temp_low','CP2',10.1);wait('evacuate','wait_temp_low','CP3',10.1);
+                wait('evacuate','wait_pressure_low','ch1',1e-5);
+                close('ready',['RV1','Slow_RV']);act('ready','pump_off','BP1');
+                act('ready','valve_open','MV2');act('ready','valve_open','MV3');
+                wait('ready','wait_rp_off_ready');act('ready','pump_off','RP1');wait('ready','wait_pv_closed');
+                wait('ready','wait_pressure_low','ch1',1e-5);
+            } else {
+                ['0','1','2','3','4'].forEach(id=>act('checks','motor_off',id));
+                ['RF',...dcLayerTargets].forEach(id=>act('checks','target_off',id));
+                close('checks',['V1_1','V1_2','V2','V3','VB1','VB2']);
+                act('checks','valve_close','GV1');wait('checks','wait_gv1_closed');
+                close('isolate',['RV1','Slow_RV','FV2','FV3']);act('isolate','pump_off','BP1');
+                wait('isolate','wait_rp_off_ready');act('isolate','pump_off','RP1');wait('isolate','wait_pv_closed');
+                wait('isolate','wait_gate_diff');act('isolate','valve_open','GV2');wait('isolate','wait_gv2_open');
+                close('vent',['MV2','MV3']);act('vent','valve_open','Vent');act('vent','valve_open','Slow');
+                wait('vent','wait_pressure_high','ch1',ATM_PRESSURE_TORR*.99);close('vent',['Vent','Slow']);
+                close('warm',['FV2','FV3']);act('warm','cp_off','CP2');act('warm','cp_off','CP3');
+                act('warm','valve_open','PURGE2');act('warm','valve_open','PURGE3');
+                wait('warm','wait_temp_high','CP2',CP_AMBIENT_TEMP_K-1);wait('warm','wait_temp_high','CP3',CP_AMBIENT_TEMP_K-1);
+                wait('warm','wait_pressure_high','cp2',ATM_PRESSURE_TORR*.95);wait('warm','wait_pressure_high','cp3',ATM_PRESSURE_TORR*.95);
+                close('finish',['PURGE2','PURGE3']);act('finish','mark_regen','CP2');act('finish','mark_regen','CP3');
+                add('finish','counter_reset');
+            }
+            return rows;
+        }
+        let powerFlowSettings={version:1,cycles:3,startup:defaultPowerFlow('startup'),shutdown:defaultPowerFlow('shutdown')};
+        let powerFlowEditMode='startup', powerFlowId=Date.now(), systemSettingsTab='flow', systemFlowKind='auto';
+        function normalizePowerFlow(data) {
+            if (!data || data.version !== 1 || !Number.isInteger(data.cycles) || data.cycles<1 || data.cycles>10) throw Error('再生循環須為 1～10 次');
+            const result={version:1,cycles:data.cycles};
+            for (const mode of ['startup','shutdown']) {
+                if (!Array.isArray(data[mode]) || data[mode].length>400) throw Error('每個流程最多 400 步');
+                const seen=new Set();
+                result[mode]=data[mode].map((raw,i)=>{
+                    const value=Number(raw.value);
+                    if (!raw || !Object.hasOwn(POWER_FLOW_ACTIONS,raw.action) ||
+                        !POWER_FLOW_GROUPS[mode].some(g=>g[0]===raw.group) ||
+                        !Number.isFinite(value) || value<0 || value>86400 ||
+                        (raw.action.includes('pressure_') && value>760) ||
+                        (raw.action.includes('temp_') && value>1000) ||
+                        (raw.action==='wait_usage' && value>100)) throw Error(`第 ${i+1} 步設定無效`);
+                    const choices=powerFlowTargets(raw.action);
+                    if (choices.length && !choices.includes(raw.target)) throw Error(`第 ${i+1} 步設備無效`);
+                    let id=typeof raw.id==='string'&&/^(pf-(startup|shutdown)-[0-9]+|new-[0-9]+)$/.test(raw.id)&&!seen.has(raw.id)?raw.id:`new-${Date.now()}${i}`;
+                    while(seen.has(id))id+='0';seen.add(id);
+                    return {id,group:raw.group,action:raw.action,target:choices.length?raw.target:'',
+                        value,name:String(raw.name || POWER_FLOW_ACTIONS[raw.action]).slice(0,80)};
+                });
+            }
+            return result;
+        }
+        try {
+            const data=JSON.parse(window.localStorage?.getItem(POWER_FLOW_STORE_KEY)||'null');
+            if(data) powerFlowSettings=normalizePowerFlow(data);
+        } catch(error) { /* Retain defaults if a saved file is invalid. */ }
+        function savePowerFlowSettings() {
+            rebuildPowerFlowGuides();
+            try {window.localStorage?.setItem(POWER_FLOW_STORE_KEY,JSON.stringify(powerFlowSettings));}
+            catch(error) {document.getElementById('power-flow-status').textContent='瀏覽器無法儲存，請匯出備份。';return;}
+            document.getElementById('power-flow-status').textContent='已儲存；下一次一鍵開／關機套用。';
+        }
+        function setSystemSettingsTab(tab) {
+            systemSettingsTab=tab==='guides'?'guides':'flow';
+            for(const key of ['flow','guides']) {
+                document.getElementById('system-'+key+'-page').classList.toggle('hidden',systemSettingsTab!==key);
+                document.getElementById('system-tab-'+key).classList.toggle('active',systemSettingsTab===key);
+            }
+            if(systemSettingsTab==='flow') setSystemFlowKind(systemFlowKind);else {rebuildPowerFlowGuides();renderGuideEditor();}
+        }
+        function setSystemFlowKind(kind) {
+            systemFlowKind=['auto','startup','shutdown'].includes(kind)?kind:'auto';
+            document.getElementById('system-flow-kind').value=systemFlowKind;
+            document.getElementById('system-auto-flow').classList.toggle('hidden',systemFlowKind!=='auto');
+            document.getElementById('system-power-flow').classList.toggle('hidden',systemFlowKind==='auto');
+            if(systemFlowKind==='auto') renderAutoFlowEditor();
+            else {powerFlowEditMode=systemFlowKind;renderPowerFlowEditor();}
+        }
+        function renderPowerFlowEditor() {
+            const mode=powerFlowEditMode, rows=powerFlowSettings[mode];
+            document.getElementById('power-flow-title').textContent=mode==='startup'?'一鍵開機流程':'一鍵關機流程';
+            document.getElementById('power-flow-cycles-wrap').classList.toggle('hidden',mode!=='startup');
+            document.getElementById('power-flow-cycles').value=powerFlowSettings.cycles;
+            const opts=(list,v)=>list.map(([key,label])=>`<option value="${key}" ${key===v?'selected':''}>${autoFlowEscape(label)}</option>`).join('');
+            document.getElementById('power-flow-list').innerHTML=POWER_FLOW_GROUPS[mode].map(([group,label],gi)=>{
+                const groupRows=rows.filter(s=>s.group===group);
+                return `<details class="auto-flow-stage" open><summary>${gi+1}. ${label}${group==='regen'?` × ${powerFlowSettings.cycles} 次`:''}　${groupRows.length} 步</summary>
+                <div class="auto-flow-column-head"><span>順序</span><span>操作</span><span>設備／位置</span><span>數值／時間</span><span>調整</span></div>`+
+                groupRows.map((s,i)=>{
+                    const update=f=>`updatePowerFlowStep('${s.id}','${f}',this.value)`;
+                    const choices=powerFlowTargets(s.action);
+                    const numeric=['wait_time','wait_sim_time','wait_pressure_low','wait_pressure_high','wait_temp_low','wait_temp_high','wait_usage'].includes(s.action);
+                    const unit=s.action.includes('pressure_')?'Torr':s.action.includes('temp_')?'K':s.action==='wait_usage'?'%':s.action==='wait_time'?'實際秒':'模擬秒';
+                    const dynamic={wait_interval:`沿用步驟間隔 ${sequenceStepIntervalMs/1000} 秒`,wait_rp_ready:'至少 5 秒',wait_rp_off_ready:'全關後至少 5 秒',wait_regen_purge:`沿用 PURGE ${autoRegenSettings.purgeMinutes} 分鐘`,wait_regen_pump:`沿用抽氣 ${autoRegenSettings.pumpMinutes} 分鐘`}[s.action];
+                    return `<div class="auto-flow-row"><span class="step-index">${i+1}</span>
+                    <select aria-label="操作" onchange="${update('action')}">${opts(Object.entries(POWER_FLOW_ACTIONS),s.action)}</select>
+                    <select aria-label="設備" onchange="${update('target')}" ${choices.length?'':'disabled'}>${opts(choices.map(t=>[t,t==='0'?'平台':t]),s.target)||'<option>－</option>'}</select>
+                    <span class="step-value">${numeric?`<input aria-label="數值" type="number" min="0" step="any" value="${s.value}" onchange="${update('value')}"> ${unit}`:dynamic||'完成後繼續'}</span>
+                    <span class="buttons"><button class="scada-button" onclick="movePowerFlowStep('${s.id}',-1)">↑</button><button class="scada-button" onclick="movePowerFlowStep('${s.id}',1)">↓</button><button class="scada-button" onclick="removePowerFlowStep('${s.id}')">刪</button></span>
+                    <span class="step-description">說明 <input aria-label="步驟名稱" style="width:250px" value="${autoFlowEscape(s.name)}" onchange="${update('name')}">　移到 <select style="width:180px" onchange="${update('group')}">${opts(POWER_FLOW_GROUPS[mode],s.group)}</select></span></div>`;
+                }).join('')+`<button class="scada-button stage-add" onclick="addPowerFlowStep('${group}')">＋ 在此新增一步</button></details>`;
+            }).join('');
+        }
+        function updatePowerFlowStep(id,field,value) {
+            const rows=powerFlowSettings[powerFlowEditMode],step=rows.find(s=>s.id===id);if(!step)return;
+            const candidate={...step,[field]:field==='value'?Number(value):value};
+            if(field==='action') {candidate.target=powerFlowTargets(value)[0]||'';candidate.value=value==='wait_temp_low'?20:value==='wait_temp_high'?292:value.includes('pressure_')?.01:value==='wait_usage'?.1:5;}
+            if(field==='action'||field==='target')candidate.name=`${POWER_FLOW_ACTIONS[candidate.action]} ${candidate.target}`.trim();
+            try {normalizePowerFlow({...powerFlowSettings,[powerFlowEditMode]:rows.map(s=>s===step?candidate:s)});}
+            catch(error){document.getElementById('power-flow-status').textContent=error.message;renderPowerFlowEditor();return;}
+            Object.assign(step,candidate);savePowerFlowSettings();renderPowerFlowEditor();
+        }
+        function addPowerFlowStep(group) {
+            const rows=powerFlowSettings[powerFlowEditMode];if(rows.length>=400)return;
+            rows.push({id:`new-${++powerFlowId}`,group,action:'wait_time',target:'',value:5,name:'等待 5 秒'});
+            savePowerFlowSettings();renderPowerFlowEditor();
+        }
+        function movePowerFlowStep(id,dir) {
+            const rows=powerFlowSettings[powerFlowEditMode],i=rows.findIndex(s=>s.id===id);if(i<0)return;
+            let j=i+dir;while(j>=0&&j<rows.length&&rows[j].group!==rows[i].group)j+=dir;
+            if(j<0||j>=rows.length)return;[rows[i],rows[j]]=[rows[j],rows[i]];savePowerFlowSettings();renderPowerFlowEditor();
+        }
+        function removePowerFlowStep(id) {powerFlowSettings[powerFlowEditMode]=powerFlowSettings[powerFlowEditMode].filter(s=>s.id!==id);savePowerFlowSettings();renderPowerFlowEditor();}
+        function setPowerFlowCycles(input) {
+            const value=Number(input.value);if(!Number.isInteger(value)||value<1||value>10){input.value=powerFlowSettings.cycles;return;}
+            powerFlowSettings.cycles=value;savePowerFlowSettings();renderPowerFlowEditor();
+        }
+        function resetPowerFlowSettings() {
+            if(!window.confirm(`還原${powerFlowEditMode==='startup'?'開機':'關機'}流程？`))return;
+            powerFlowSettings[powerFlowEditMode]=defaultPowerFlow(powerFlowEditMode);savePowerFlowSettings();renderPowerFlowEditor();
+        }
+        function exportPowerFlows() {
+            const link=document.createElement('a'),blob=new Blob([JSON.stringify(powerFlowSettings,null,2)],{type:'application/json'});
+            link.href=URL.createObjectURL(blob);link.download='一鍵開關機流程.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+        }
+        function importPowerFlows(input) {
+            const file=input.files?.[0];input.value='';if(!file)return;
+            const reader=new FileReader();reader.onload=()=>{try{powerFlowSettings=normalizePowerFlow(JSON.parse(reader.result));savePowerFlowSettings();renderPowerFlowEditor();}
+                catch(error){document.getElementById('power-flow-status').textContent='匯入失敗：'+error.message;}};reader.readAsText(file);
+        }
+        function compiledPowerFlow(mode) {
+            return POWER_FLOW_GROUPS[mode].flatMap(([group])=>{
+                const rows=powerFlowSettings[mode].filter(s=>s.group===group),count=group==='regen'?powerFlowSettings.cycles:1;
+                return Array.from({length:count},(_,cycle)=>rows.map(s=>({...s,cycle:group==='regen'?cycle+1:0}))).flat();
+            });
+        }
+        function powerFlowDuration(step) {
+            return step.action==='wait_interval'?(powerSequence.previousChanged?powerSequence.intervalSec:0):
+                step.action==='wait_regen_purge'?powerSequence.regenSettings.purgeMinutes*60:
+                step.action==='wait_regen_pump'?powerSequence.regenSettings.pumpMinutes*60:step.value;
+        }
+        function powerFlowReady(step) {
+            const a=step.action,t=step.target,v=step.value;
+            if(a==='wait_pressure_low')return gasPressure(t)<=v;
+            if(a==='wait_pressure_high')return gasPressure(t)>=v;
+            if(a==='wait_temp_low')return cpState[t].tempK<=v;
+            if(a==='wait_temp_high')return cpState[t].tempK>=v;
+            if(a==='wait_usage')return cpState[t].usagePct<=v;
+            if(a==='wait_rp_off_ready')return !rpHasOpenInlet()&&(!pumps.RP1||!Number.isFinite(rpLastInletClosedAtMs)||performance.now()-rpLastInletClosedAtMs>=5000);
+            if(a==='wait_pv_closed')return !pvAutoPulseActive&&!valves.PV1;
+            if(a==='wait_regen_purge')return valves['PURGE'+t.slice(-1)]&&cpState[t].purgeSeconds>=powerFlowDuration(step);
+            if(a==='wait_regen_pump')return valves['FV'+t.slice(-1)]&&pumps.RP1&&
+                powerSequence.simTime-(powerSequence.fvOpened[t]??powerSequence.simTime)>=powerFlowDuration(step)&&gasPressure(t.toLowerCase())<1.1;
+            if(['wait_time','wait_interval','wait_sim_time'].includes(a))return (a==='wait_sim_time'?powerSequence.elapsed:
+                (performance.now()-powerSequence.stepStartedAt)/1000)>=powerFlowDuration(step);
+            return autoFlowConditionReady({action:a,condition:'none'});
+        }
+        function powerFlowSignature(step) {
+            const t=step.target;
+            if(step.action.startsWith('valve_'))return `${valves[t]}:${gateTransitions[t]?.target}`;
+            if(step.action.startsWith('pump_'))return pumps[t];
+            if(step.action.startsWith('cp_'))return cryoPumps[t];
+            if(step.action==='motor_off')return motorStates[Number(t)];
+            if(step.action==='target_off')return targets[t];
+            return null;
+        }
+        function applyPowerFlowAction(step) {
+            const a=step.action,t=step.target;
+            if(a.startsWith('wait_'))return true;
+            if(a==='cp_on'||a==='cp_off') {
+                if(a==='cp_on'&&!cryoPumps[t]) {
+                    const n=t.slice(-1),limit=n==='2'?gaugeParameters.cg2_2:gaugeParameters.cg3_2;
+                    if(valves['MV'+n]||valves['FV'+n]||valves['PURGE'+n]||gasPressure(t.toLowerCase())>limit)
+                        return blockOperation(`${t} 啟動條件未達：須關閉 MV／FV／PURGE，CP 壓力 ≤ ${formatGaugePressure(limit)} Torr。`);
+                }
+                cryoPumps[t]=a==='cp_on';return true;
+            }
+            if(a==='motor_off'){motorStates[Number(t)]=0;return true;}
+            if(a==='mark_regen') {Object.assign(cpState[t],{usagePct:100,overloaded:true,regenReady:false,regenBudgetPct:0});return true;}
+            if(a==='counter_reset'){document.getElementById('total-count-readout').value=0;return true;}
+            if(a==='pump_off'&&t==='RP1'&&!powerFlowReady({action:'wait_rp_off_ready'}))return blockOperation('停止 RP 前，須先等 RV／FV 全關滿 5 秒。');
+            if(a==='valve_open'&&t.startsWith('PURGE')&&cryoPumps['CP'+t.slice(-1)])return blockOperation('PURGE 前請先停止對應 CP。');
+            const previouslyOpen=valves[t];
+            const result=applyAutoFlowAction({...step,condition:'none',seconds:0,threshold:0});
+            if(result&&a==='valve_open'&&t.startsWith('FV')&&!previouslyOpen)powerSequence.fvOpened['CP'+t.slice(-1)]=powerSequence.simTime;
+            if(result&&a==='valve_open'&&t.startsWith('PURGE')&&!previouslyOpen) {
+                const cp=cpState['CP'+t.slice(-1)];
+                if(cp.regenCycles===0||gasPressure('cp'+t.slice(-1))<1.1) {
+                    cp.regenBudgetPct=Math.min(100/powerSequence.cycles+1e-6,cp.usagePct);
+                    cp.regenRecoveredPct=0;cp.regenReliefRecoveredPct=0;cp.regenReleasedPct=0;
+                }
+            }
+            return result;
+        }
+        function powerFlowGuideDefaults(mode,step) {
+            let anchor=step.target;
+            if(anchor==='cp2'||anchor==='cp3')anchor=anchor.toUpperCase();
+            if(anchor?.startsWith('ch'))anchor=anchor==='ch1'?'RV1':'MV2';
+            if(anchor==='line'||step.action.includes('rp_')||step.action==='wait_pv_closed')anchor='RP1';
+            if(step.action.includes('gv1'))anchor='GV1';
+            if(step.action.includes('gv2')||step.action==='wait_gate_diff')anchor='GV2';
+            const ordered=POWER_FLOW_GROUPS[mode].flatMap(([group])=>powerFlowSettings[mode].filter(row=>row.group===group));
+            const index=ordered.findIndex(row=>row.id===step.id);
+            if(!tutorialGuides[anchor])anchor=ordered.slice(0,index).reverse().find(row=>tutorialGuides[row.target])?.target||'RP1';
+            const on=step.action.endsWith('_on')||step.action.endsWith('_open');
+            const next=ordered[index+1];
+            const source=tutorialGuides[step.target]?.[on?'on':'off'];
+            const obj={anchor};
+            Object.defineProperties(obj,{
+                title:{enumerable:true,configurable:true,get:()=>step.name},
+                body:{enumerable:true,configurable:true,get:()=>{
+                    const a=step.action;
+                    if(a.startsWith('wait_')) {
+                        const detail=a==='wait_interval'?'沿用主畫面的步驟間隔；前一個確認動作沒有改變設備時略過。':
+                            a==='wait_regen_purge'?`此 CP 的 PURGE 須持續 ${autoRegenSettings.purgeMinutes} 模擬分鐘。`:
+                            a==='wait_regen_pump'?`此 CP 須透過 FV／RP 抽氣 ${autoRegenSettings.pumpMinutes} 模擬分鐘，且壓力低於 1.1 Torr。`:
+                            a.includes('pressure_')?`${step.target} 壓力 ${a.endsWith('low')?'≤':'≥'} ${formatGaugePressure(step.value)} Torr。`:
+                            a.includes('temp_')?`${step.target} 溫度 ${a.endsWith('low')?'≤':'≥'} ${step.value} K。`:
+                            a==='wait_usage'?`${step.target} 使用率 ≤ ${step.value}%。`:
+                            a==='wait_time'||a==='wait_sim_time'?`等待 ${step.value} ${a==='wait_time'?'實際':'模擬'}秒。`:POWER_FLOW_ACTIONS[a]+'。';
+                        return detail;
+                    }
+                    return source?.body||POWER_FLOW_ACTIONS[a]+'。';
+                }},
+                next:{enumerable:true,configurable:true,get:()=>next?`下一步：${next.name}`:'下一步：本次流程結束。'}
+            });
+            return obj;
+        }
+        function rebuildPowerFlowGuides(restoreSaved=false) {
+            for(let i=guideRegistry.length-1;i>=0;i--)if(['startup','shutdown'].includes(guideRegistry[i].group))guideRegistry.splice(i,1);
+            for(const mode of ['startup','shutdown']) {
+                const rows=POWER_FLOW_GROUPS[mode].flatMap(([group])=>powerFlowSettings[mode].filter(row=>row.group===group));
+                rows.forEach((step,index)=>{
+                    const obj=powerFlowGuideDefaults(mode,step),defaults={},values={};
+                    for(const f of [...GUIDE_FIELDS,'anchor']){defaults[f]=Object.getOwnPropertyDescriptor(obj,f);values[f]=obj[f];}
+                    guideRegistry.push({key:`power:${mode}:${step.id}`,group:mode,obj,hasAnchor:true,defaults,values,label:`${index+1}. ${step.name}`});
+                });
+            }
+            let saved={};
+            if(restoreSaved)try{saved=JSON.parse(window.localStorage?.getItem(GUIDE_STORE_KEY)||'{}');}catch(error){}
+            applyGuideOverrides({...saved,...guideOverrides});
+        }
+        function showEditablePowerGuide(step) {
+            const key=`power:${powerSequence.mode}:${step.id}`;
+            // Execution uses a snapshot. Only explicit explanation edits override it.
+            const base=powerFlowGuideDefaults(powerSequence.mode,step),overrides=guideOverrides[key]||{};
+            const guide={...base,...overrides};
+            if(!overrides.body&&['wait_interval','wait_regen_purge','wait_regen_pump'].includes(step.action))guide.body=powerFlowWaitDescription(step);
+            let item=findTutorialItem(guide.anchor);
+            if(step.action==='motor_off'&&!overrides.anchor)item=clickTargets.find(t=>t.type==='arrow'&&t.sec===Number(step.target))||item;
+            if(!item)return;
+            const next=powerSequence.steps[powerSequence.step+1];
+            if(!overrides.next)guide.next=next?`下一步：${next.name}`:'下一步：完成本次流程。';
+            clearPowerSequenceTutorials();
+            showTutorialGuide(guide,item,step.action.endsWith('_on')||step.action.endsWith('_open'),
+                '一鍵'+(powerSequence.mode==='startup'?'開機':'關機'),'power-sequence:editable',true);
+        }
+        function powerFlowWaitDescription(step) {
+            const a=step.action,t=step.target;
+            if(a.includes('pressure_'))return `${t}：${formatGaugePressure(gasPressure(t))} Torr；等待 ${a.endsWith('low')?'≤':'≥'} ${formatGaugePressure(step.value)} Torr。`;
+            if(a.includes('temp_'))return `${t}：${cpState[t].tempK.toFixed(1)} K；等待 ${a.endsWith('low')?'≤':'≥'} ${step.value} K。`;
+            if(a==='wait_usage')return `${t} 使用率 ${cpState[t].usagePct.toFixed(1)}%；目標 ≤ ${step.value}%。`;
+            if(['wait_time','wait_interval','wait_sim_time','wait_regen_purge','wait_regen_pump'].includes(a))return `等待 ${powerFlowDuration(step)} ${['wait_time','wait_interval'].includes(a)?'實際':'模擬'}秒。`;
+            return POWER_FLOW_ACTIONS[a]+'。';
+        }
+        function enterEditablePowerStep() {
+            const state=powerSequence,step=state.steps[state.step];
+            if(!step){state.active=false;clearPowerSequenceTutorials();renderPowerSequenceStatus(`${state.mode==='startup'?'開機':'關機'}流程已完成，共執行 ${state.steps.length} 步。`);return;}
+            state.elapsed=0;state.stepStartedAt=performance.now();
+            if(!step.action.startsWith('wait_')) {
+                const before=powerFlowSignature(step);
+                if(!applyPowerFlowAction(step)){state.active=false;clearPowerSequenceTutorials();renderPowerSequenceStatus(`流程中止於第 ${state.step+1} 步：${step.name}。請檢查閥位與步驟設定。`);return;}
+                state.previousChanged=before!==powerFlowSignature(step)||['mark_regen','counter_reset'].includes(step.action);
+            }
+            showEditablePowerGuide(step);renderEditablePowerStatus();
+        }
+        function stopEditablePowerFlow() {
+            if(!powerSequence.active||!powerSequence.custom)return;
+            powerSequence.active=false;
+            rpShutdownRequested=false;
+            clearPowerSequenceTutorials();
+            renderPowerSequenceStatus('一鍵流程已停止；設備維持目前狀態，可手動操作或修改流程後重新啟動。');
+        }
+        function advanceEditablePowerFlow(dt) {
+            powerSequence.simTime+=dt;powerSequence.elapsed+=dt;
+            const step=powerSequence.steps[powerSequence.step];if(!step)return;
+            if(step.action.startsWith('wait_')&&!powerFlowReady(step)){renderEditablePowerStatus();return;}
+            powerSequence.step++;enterEditablePowerStep();
+        }
+        function powerFlowCanSkip(step) {
+            const cp=step.target,n=cp?.slice(-1);
+            if(step.action==='wait_regen_purge'&&(!valves['PURGE'+n]||valves['FV'+n]||valves['MV'+n]||cryoPumps[cp]))return false;
+            if(step.action==='wait_regen_pump'&&(!valves['FV'+n]||!pumps.RP1||valves['PURGE'+n]||valves['MV'+n]||cryoPumps[cp]||!cpState[cp].regenReady))return false;
+            return ['wait_pressure_low','wait_pressure_high','wait_temp_low','wait_temp_high','wait_regen_purge','wait_regen_pump','wait_gate_diff','wait_sim_time'].includes(step.action)&&!powerFlowReady(step);
+        }
+        function renderEditablePowerStatus() {
+            const s=powerSequence,step=s.steps[s.step],button=document.getElementById('power-sequence-skip');if(!step)return;
+            updateStatus(`${s.mode==='startup'?'開機':'關機'} ${s.step+1}/${s.steps.length}${step.cycle?`（再生第 ${step.cycle}/${s.cycles} 輪）`:''}：${step.name}。${step.action.startsWith('wait_')?powerFlowWaitDescription(step):'已執行'}（${regenTime(s.elapsed)}）`);
+            const can=powerFlowCanSkip(step);button?.classList.toggle('hidden',!can);
+            if(button&&can){const remain=Math.max(0,5000-(performance.now()-s.stepStartedAt));button.disabled=remain>0;button.textContent=remain?`快進等待（${Math.ceil(remain/1000)} 秒）`:'快進目前等待';}
+        }
+        function fastForwardEditablePowerFlow() {
+            const s=powerSequence,step=s.steps[s.step];
+            if(!step||!powerFlowCanSkip(step)||performance.now()-s.stepStartedAt<5000)return;
+            const t=step.target,a=step.action;
+            if(a.startsWith('wait_pressure_')) {
+                setGasPressure(t,step.value);
+                if(t.startsWith('ch'))for(const group of (valves.GV2?[['ch1','ch2','ch3','ch4']]:[['ch1'],['ch2','ch3','ch4']]))if(group.includes(t))for(const ch of group)setGasPressure(ch,step.value);
+            } else if(a==='wait_gate_diff')setGasPressure('ch1',gasPressure('ch2'));
+            else if(a==='wait_temp_low'||a==='wait_temp_high')cpState[t].tempK=step.value;
+            else if(a==='wait_sim_time')s.elapsed=step.value;
+            else if(a==='wait_regen_purge'){
+                const p=cpState[t];p.tempK=CP_AMBIENT_TEMP_K;p.purgeSeconds=powerFlowDuration(step);p.regenReady=true;
+                p.regenStartUsage=p.usagePct;p.regenStartPressure=ATM_PRESSURE_TORR;
+                setGasPressure(t.toLowerCase(),ATM_PRESSURE_TORR);p.nitrogenMolecules=gasMolecules[t.toLowerCase()];
+            } else if(a==='wait_regen_pump'){
+                const p=cpState[t],recovered=Math.min(p.usagePct,Math.max(0,p.regenBudgetPct-p.regenRecoveredPct));
+                p.usagePct=Math.max(0,p.usagePct-recovered);p.internalUsagePct=Math.min(p.internalUsagePct,p.usagePct);
+                p.releasedMolecules=0;p.regenRecoveredPct+=recovered;p.overloaded=p.usagePct>=100;
+                cpBoundDots[t].length=Math.min(cpBoundDots[t].length,Math.round(p.internalUsagePct/100*22));
+                s.fvOpened[t]=s.simTime-powerFlowDuration(step);setGasPressure(t.toLowerCase(),3e-3);
+            }
+            renderEditablePowerStatus();
+        }
+
+        rebuildPowerFlowGuides(true);
 
         function clearPowerSequenceTutorials() {
             tutorialCards = tutorialCards.filter(c => !String(c.key || '').startsWith('power-sequence:'));
@@ -7649,6 +8496,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 return;
             }
             if (!powerSequence.active) { skip?.classList.add('hidden'); return; }
+            if (powerSequence.custom) return renderEditablePowerStatus();
             const keys = powerSequenceStepKeys(powerSequence.mode);
             const key = keys[powerSequence.step];
             const wait = powerSequenceWait(key);
@@ -7669,6 +8517,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
         function fastForwardPowerSequenceStep() {
             if (!powerSequence.active) return;
+            if (powerSequence.custom) return fastForwardEditablePowerFlow();
             syncPowerSequenceRegenPhase();
             const key = powerSequenceStepKeys(powerSequence.mode)[powerSequence.step];
             // 第 8 步「20 K → 10 K」是抽氣模擬快進，不是一般的開／關機步驟等待，
@@ -7818,23 +8667,23 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 carrierPosMM < CHAMBER_LENGTH_MM &&
                 carrierPosMM + CARRIER_LENGTH_MM > CHAMBER_LENGTH_MM)
                 return blockOperation('載盤跨越 GV1，先將載盤退出，才能執行關門。');
+            const steps = compiledPowerFlow(mode);
+            if (!steps.length) return blockOperation('這個流程沒有步驟，請先到系統／流程設定新增。');
             lastAutomatedActionMs = -Infinity;
-            startupRv10kHoldStartedAt = 0;
-            startupRv10kReached = false;
-            startupRv10kHoldCompleted = false;
-            startupRv10kHoldCompleted = false;
-            const firstStep = nextPowerSequenceStepIndex(mode, 0);
-            powerSequence = { mode, step:firstStep, elapsed:0, active:true,
-                stepStartedAt:performance.now(), regenPhaseKey:'', regenAttempts:0 };
-            applyPowerSequenceStep(mode, powerSequenceStepKeys(mode)[firstStep]);
-            syncPowerSequenceRegenPhase();
-            showPowerSequenceGuide(powerSequenceStepKeys(mode)[firstStep],
-                `${mode === 'startup' ? '開機' : '關機'}：步驟 ${firstStep + 1}/${powerSequenceStepKeys(mode).length}`);
-            renderPowerSequenceStatus();
+            autoRpBranchReadyAtMs = null;
+            autoRpBranchSteps = [];
+            rpShutdownRequested = false;
+            isAutoRunning = false; cycleTimerActive = false; pumpTimerActive = false;
+            powerSequence = {mode,custom:true,steps,step:0,active:true,elapsed:0,simTime:0,
+                stepStartedAt:performance.now(),previousChanged:false,fvOpened:{},
+                intervalSec:sequenceStepIntervalMs/1000,cycles:powerFlowSettings.cycles,
+                regenSettings:{...autoRegenSettings}};
+            enterEditablePowerStep();
         }
 
         function advancePowerSequence(dt) {
             if (!powerSequence.active) return;
+            if (powerSequence.custom) return advanceEditablePowerFlow(dt);
             const key = powerSequenceStepKeys(powerSequence.mode)[powerSequence.step];
             if (key === 'shutdown-gv2') advanceShutdownGateStep();
             if (key === 'startup-regen') {
@@ -7958,7 +8807,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     if (pumps.RP1 && rpStopRemaining === 0)
                         startRpShutdown();
                     renderPowerSequenceStatus();
-                    // startRpShutdown() 已經安排 RP 停機；等 RP 真正停止後才進完成步驟。
+                    // 隔離等待結束即停止 RP；僅等待 PV 短暫回氣結束。
                     if (pumps.RP1 || rpStopRemaining > 0 || pvAutoPulseActive) return;
                     powerSequence.step = powerSequenceStepKeys('startup').indexOf('startup-ready');
                     powerSequence.elapsed = 0;
@@ -8083,6 +8932,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             pvAutoPulseActive = false;
             rpRunSeconds = 0;
             rpStopRemaining = 0;
+            rpShutdownRequested = false;
             rpLastInletClosedAtMs = -Infinity;
             rpInletWasOpen = false;
             isAutoRunning = false;
