@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4CH CKT_InLine Sputter System - 流程與教學版 v18</title>
+    <title>4CH CKT_InLine Sputter System - 流程與教學版 v19</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -457,13 +457,44 @@
             .auto-flow-toolbar select { max-width:100%; }
             input,select,textarea { scroll-margin:70px; }
         }
+        .group-controls19,.step-extra19 {display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:9px;background:#e0ded5;}
+        .group-controls19 label,.step-extra19 label {display:flex;align-items:center;flex-wrap:wrap;gap:5px;}
+        .group-controls19 input,.group-controls19 select,.step-extra19 input,.step-extra19 select {border:1px solid #81909b;padding:4px;background:#fffef5;max-width:100%;}
+        .group-controls19 input {width:240px;}.group-controls19 select{max-width:260px;}
+        .step-extra19 {background:#d1dbe3;border-top:1px dashed #9aa7ae;font-size:12px;}
+        .step-extra19 input[type=number]{width:75px;}.step-extra19 small{color:#445369;}
+        .step-extra19 select {max-width:180px;}.step-block19{border-bottom:2px solid #8d98a2;}
+        .auto-flow-row .step-description{display:flex;gap:12px;flex-wrap:wrap;}.step-description label{display:flex;gap:5px;align-items:center;}
+        .auto-flow-row .step-description input{width:270px;}.group-controls19 button{padding:5px 9px;}
+        .tutorial-callout {pointer-events:auto;touch-action:manipulation;cursor:help;}
+        #system-page .guide-form19 {display:flex;flex-direction:column;gap:8px;}
+        .guide-form19 label {display:flex;flex-direction:column;gap:4px;font-size:12px;color:#21394d;}
+        .guide-form19 input,.guide-form19 textarea,.guide-form19 select{width:100%;min-width:0;box-sizing:border-box;padding:6px;border:1px solid #8594a4;background:#fff;color:#112238;font:14px sans-serif;}
+        .guide-position19{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        #system-page .ge-head{flex-wrap:wrap;}#system-page .ge-head strong{flex:1 0 55%;}
+        #guide-picker19 {width:700px;max-width:94vw;max-height:85dvh;padding:16px;background:#d4d0c8;border:3px outset white;}
+        #guide-picker19 h2,#live-guide-editor19 h2{font-weight:bold;margin:0 0 10px;font-size:16px;color:#143e65;}
+        #guide-picker-search19{width:100%;padding:9px;margin:10px 0;border:1px solid #666;font-size:16px;}
+        #guide-picker-list19{max-height:55dvh;overflow:auto;}
+        #guide-picker-list19>div{display:grid;grid-template-columns:100px 1fr 65px;gap:8px;align-items:center;padding:6px;border-bottom:1px solid #a3a3a3;}
+        .dialog-actions19{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}.dialog-actions19 button{padding:8px;}
+        #live-guide-editor19{position:fixed;z-index:200;right:15px;bottom:15px;width:min(440px,calc(100vw - 30px));max-height:85dvh;overflow:auto;padding:14px;background:#e3e7e9;border:3px solid #14476a;box-shadow:0 4px 24px #0007;}
+        #live-guide-editor19[hidden]{display:none;}#live-guide-error19{color:#a21414;}
+        @media(max-width:900px){
+            .step-extra19{display:grid;grid-template-columns:1fr;gap:10px;}.group-controls19{align-items:stretch;}
+            .group-controls19 label{width:100%;}.group-controls19 input,.group-controls19 select{flex:1;min-width:0;max-width:100%;font-size:16px;}
+            .step-extra19 input,.step-extra19 select{font-size:16px;min-height:36px;}.step-extra19 small{flex-basis:100%;}
+            .guide-position19{grid-template-columns:1fr 1fr;}.guide-form19 input,.guide-form19 textarea,.guide-form19 select{font-size:16px;}
+            #live-guide-editor19{right:8px;bottom:8px;width:calc(100vw - 16px);max-height:70dvh;}.auto-flow-row .step-description input{width:100%;}
+        }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between text-black text-xs">
 
     <div id="app-header" class="scada-window p-1 mb-1">
         <div class="bg-[#000080] text-white px-2 py-0.5 font-bold flex justify-between items-center text-sm">
-            <span><i class="fa-solid fa-window-maximize mr-1 text-xs"></i> 4CH CKT_InLine Sputter System - 流程與教學版 v18</span>
+            <span><i class="fa-solid fa-window-maximize mr-1 text-xs"></i> 4CH CKT_InLine Sputter System - 流程與教學版 v19</span>
             <div class="flex space-x-1 text-xs">
                 <button onclick="blockOperation('最小化功能未啟用：這是教學模擬畫面，請直接在瀏覽器內操作。')" title="教學模擬：未啟用" class="px-2 bg-[#d4d0c8] text-black border border-white hover:bg-gray-300">_</button>
                 <button onclick="blockOperation('最大化功能未啟用：這是教學模擬畫面，請直接在瀏覽器內操作。')" title="教學模擬：未啟用" class="px-2 bg-[#d4d0c8] text-black border border-white hover:bg-gray-300">□</button>
@@ -602,7 +633,7 @@
         <div class="auto-flow-toolbar"><label>選擇流程 <select id="system-flow-kind" onchange="setSystemFlowKind(this.value)"><option value="auto">自動鍍膜</option><option value="startup">一鍵開機</option><option value="shutdown">一鍵關機</option></select></label></div>
         <section id="system-auto-flow" class="auto-flow-panel" aria-label="自動流程執行設定">
             <h2>自動流程設定（實際執行）</h2>
-            <p>從上往下執行，每列只做一件事。例如「開 GV1」→「等 GV1 開到位」→「再等 2 秒」各佔一列。展開階段後可逐項修改、移動或刪除；右側「＋」可在該階段加入步驟。門閥壓差和載盤不能穿越關閉門閥等物理限制仍會檢查。修改在下一次啟動時套用。</p>
+            <p>每列可設定動作、至少等待秒數、與前一步同時執行及說明編號。條件等待與動作間隔同時計算。分組可新增、命名與刪除；自動鍍膜分組的執行時機決定在哪個流程階段執行。流程修改於下次啟動套用，說明文字可即時編輯。</p>
             <div class="auto-flow-toolbar">
                 <label>顯示 <select id="auto-flow-stage-filter" onchange="renderAutoFlowEditor()"><option value="all">全部階段</option></select></label>
                 <button type="button" class="scada-button ge-btn" onclick="resetAutoFlowSettings()">還原預設流程設定</button>
@@ -612,12 +643,13 @@
                 <span id="auto-flow-status" class="auto-flow-hint"></span>
             </div>
             <div class="auto-flow-toolbar"><label>RP 支線：預計 <input id="auto-flow-reopen" type="number" min="0" max="3600" step="1" style="width:65px" onchange="setAutoFlowWait('rp-branch-reopen',this)"> 秒內重開 RV／FV，就先保留 RP／BP</label></div>
-            <div id="auto-flow-custom" class="auto-flow-list"></div>
+            <button class="scada-button stage-add" onclick="addFlowGroup19('auto')">＋ 新增分組</button><div id="auto-flow-custom" class="auto-flow-list"></div>
         </section>
         <section id="system-power-flow" class="auto-flow-panel hidden" aria-label="一鍵開關機流程設定">
             <h2 id="power-flow-title">一鍵開機流程</h2>
-            <p>每列是一個動作或等待，依階段由上往下執行。可新增、刪除、上下移動，也可改操作、設備與數值。教學模式每個操作之間至少保留自訂間隔（預設 5 秒）；間隔會與原有等待同時計時，期間保留目前動作說明。設定在下一次啟動套用。</p>
-            <p>一般模式與教學模式都使用以下逐步流程；一般模式動作至少間隔 1 秒，教學模式依右下角設定（預設 5 秒）。只有另外勾選「瞬間完成」才直接套用完成狀態。等待壓力、溫度或再生時間時，經過 5 秒可按主畫面的「快進目前等待」。門閥與 RP 的實體互鎖仍生效。</p>
+            
+            
+<p>依分組順序執行，每步可設定最少間隔或與前一步同時執行。所有秒數都受模擬時間倍率影響；壓力與延遲等待和最少間隔重疊計算。說明可指定編號、位置及指向元件。</p>
             <div class="auto-flow-toolbar">
                 <label id="power-flow-cycles-wrap">再生容量分配 <input id="power-flow-cycles" type="number" min="1" max="10" step="1" style="width:60px" onchange="setPowerFlowCycles(this)"> 輪；每輪結束檢查，未達標再循環</label>
                 <button class="scada-button" onclick="stopEditablePowerFlow()">停止目前一鍵流程</button>
@@ -627,16 +659,13 @@
                 <input id="power-flow-import" type="file" accept="application/json,.json" class="hidden" onchange="importPowerFlows(this)">
                 <span id="power-flow-status" class="auto-flow-hint"></span>
             </div>
-            <div id="power-flow-list" class="auto-flow-list"></div>
+            <button class="scada-button stage-add" onclick="addFlowGroup19(powerFlowEditMode)">＋ 新增分組</button><div id="power-flow-list" class="auto-flow-list"></div>
         </section>
         </div>
         <div id="system-guides-page" class="hidden">
         <div class="ge-toolbar">
-            <button type="button" id="ge-tab-manual" class="scada-button ge-tab" onclick="setGuideEditorTab('manual')">手動操作</button>
-            <button type="button" id="ge-tab-auto" class="scada-button ge-tab" onclick="setGuideEditorTab('auto')">自動流程說明</button>
-            <button type="button" id="ge-tab-startup" class="scada-button ge-tab" onclick="setGuideEditorTab('startup')">開機</button>
-            <button type="button" id="ge-tab-shutdown" class="scada-button ge-tab" onclick="setGuideEditorTab('shutdown')">關機</button>
-            <input id="ge-search" class="ge-search" type="search" placeholder="搜尋全部說明（標題／內文）" oninput="setGuideEditorQuery(this.value)">
+            <strong>說明視窗編號</strong><button class="scada-button ge-btn" onclick="addGuide19()">＋ 新增說明</button><button class="scada-button ge-btn" onclick="guidePage19=Math.max(0,guidePage19-1);renderGuideEditor()">上一頁</button><span id="guide-page-label"></span><button class="scada-button ge-btn" onclick="guidePage19++;renderGuideEditor()">下一頁</button>
+            <input id="ge-search" class="ge-search" type="search" placeholder="搜尋編號、標題或內文" oninput="setGuideEditorQuery(this.value)">
             <button type="button" class="scada-button ge-btn" onclick="exportGuideOverrides()">匯出</button>
             <button type="button" class="scada-button ge-btn" onclick="document.getElementById('ge-import').click()">匯入</button>
             <input id="ge-import" type="file" accept="application/json,.json" class="hidden" onchange="importGuideOverrides(this)">
@@ -648,7 +677,7 @@
             <aside class="ge-side">
                 <h3>即時預覽</h3>
                 <div class="ge-prev"><span class="p" id="ge-prev-phase">預覽</span><div class="t" id="ge-prev-title">點選左側任一欄位</div><div class="b" id="ge-prev-body"></div><div class="n" id="ge-prev-next"></div></div>
-                <div class="ge-tip">• 修改在離開欄位後自動儲存，只存在這個瀏覽器；換電腦請用「匯出／匯入」。<br>• 標示「↔ 同步」的欄位會跟著原始動作的說明走；自己改過就變成獨立文字，可用「還原」恢復同步。<br>• 建議長度：標題 ≤ 24 字、內文 ≤ 75 字、下一步 ≤ 36 字（超過只提醒，不強制）。<br>• 「在主畫面預覽」需先勾選主畫面的「教學模式」。</div>
+                <div class="ge-tip">• 修改在離開欄位後自動儲存，只存在這個瀏覽器；換電腦請用「匯出／匯入」。<br>• 每則說明有固定流水號，刪除後不重用編號。到流程列填入說明編號即可共用。<br>• 建議長度：標題 ≤ 24 字、內文 ≤ 75 字、下一步 ≤ 36 字（超過只提醒，不強制）。<br>• 可設定視窗位置、箭頭出口及指向元件。流程中雙擊說明可暫停編輯，儲存後繼續。</div>
             </aside>
         </div>
 </div>
@@ -894,6 +923,9 @@
     </dialog>
 
     <script>
+        let simulationElapsedMs = 0;
+        function simulationNow(){ return simulationElapsedMs; }
+
         const CARRIER_LENGTH_MM = 700;
         const COATING_BIN_COUNT = 140; // Five millimetres per visible coating section.
         const COATING_HIT_THICKNESS = .01 / 3; // Small relative deposit per affected section.
@@ -970,10 +1002,10 @@
             return Number.isFinite(p) && p <= STARTUP_10K_TOLERANCE_TORR;
         }
         function automaticActionReady() {
-            return performance.now() - lastAutomatedActionMs >= sequenceStepIntervalMs;
+            return simulationNow() - lastAutomatedActionMs >= sequenceStepIntervalMs;
         }
         function recordAutomaticAction() {
-            lastAutomatedActionMs = performance.now();
+            lastAutomatedActionMs = simulationNow();
         }
         function setSequenceStepInterval(input) {
             const seconds = Number(input.value);
@@ -1446,7 +1478,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             pvAutoPulseSeconds = 1.5;
             if (tutorialModeEnabled()) {
                 const pvItem=findTutorialItem('PV1');
-                rpPvTutorialEvent = {atMs:performance.now(), id:rpPvTutorialEvent.id+1};
+                rpPvTutorialEvent = {atMs:simulationNow(), id:rpPvTutorialEvent.id+1};
                 if(pvItem) showTutorialGuide({
                     title:'PV1 自動回氣',
                     body:'RP1 已停止，PV1 自動短暫開啟，通入大氣填滿已隔離的前級管路；這不是向 CH 充氣。',
@@ -1463,7 +1495,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function syncRpInletClosureWait() {
-            const open = rpHasOpenInlet(), now = performance.now();
+            const open = rpHasOpenInlet(), now = simulationNow();
             if (pumps.BP1) rpLastBpClosedAtMs = -Infinity;
             else if (rpBpWasOn && pumps.RP1) rpLastBpClosedAtMs = now;
             rpBpWasOn = pumps.BP1;
@@ -1482,7 +1514,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (!pumps.RP1) return 0;
             if (rpHasOpenInlet() || pumps.BP1) return Infinity;
             const since = Math.max(rpLastInletClosedAtMs, rpLastBpClosedAtMs);
-            return Number.isFinite(since) ? Math.max(0, sequenceStepIntervalMs - (performance.now()-since)) : 0;
+            return Number.isFinite(since) ? Math.max(0, sequenceStepIntervalMs - (simulationNow()-since)) : 0;
         }
         function rpCanStopNow() {
             syncRpInletClosureWait();
@@ -2337,6 +2369,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 const box = document.createElement('div');
                 box.className = 'tutorial-callout';
                 box.dataset.tutorialId = card.id;
+                box.title = '雙擊編輯說明並暫停流程';
+                box.ondblclick = e => { e.stopPropagation(); beginGuideLiveEdit(card.id); };
                 const phase = document.createElement('div');
                 phase.className = 'tutorial-callout-phase';
                 phase.textContent = card.phaseLabel || '目前步驟';
@@ -2359,7 +2393,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 box.appendChild(next);
                 layer.appendChild(box);
                 if (mobile) return;
-                const pos = chooseTutorialPosition(card.target, box, existing);
+                const pos = positionGuide19(card, box, existing);
                 box.style.width = `${pos.width}px`;
                 box.style.left = `${pos.left}px`;
                 box.style.top = `${pos.top}px`;
@@ -2383,7 +2417,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
         function teachingActionReady(lastActionAtMs) {
             return !Number.isFinite(lastActionAtMs) ||
-                performance.now()-lastActionAtMs >= flowActionIntervalMs();
+                simulationNow()-lastActionAtMs >= flowActionIntervalMs();
         }
         function flowActionIntervalMs() {
             return tutorialModeEnabled() ? sequenceStepIntervalMs : 1000;
@@ -2393,7 +2427,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (!tutorialModeEnabled() ||
                 !guide || !targetItem) return;
             const linkedRpPv = (key === 'rp-auto-pv' || targetItem.id === 'RP1' && state === false) &&
-                performance.now()-rpPvTutorialEvent.atMs < 250;
+                simulationNow()-rpPvTutorialEvent.atMs < 250;
             const linkGroup = linkedRpPv ? `rp-pv-${rpPvTutorialEvent.id}` : '';
             const previous = tutorialCards.length === 1 ? tutorialCards[0] : null;
             const dc = dcLayerTargets.includes(targetItem.id) && typeof state === 'boolean';
@@ -2408,16 +2442,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             tutorialCards.push({id,key,guide:shownGuide,target:targetItem,state,phaseLabel,persistent,
                 linkGroup,dcState:dc ? state : null,dcTargets});
             renderTutorialCards();
-            if (!persistent) {
-                const duration = tutorialDurationMs(guide);
-                const currentCard = tutorialCards.find(c => c.id === id);
-                setTimeout(() => {
-                    const card = tutorialCards.find(c => c.id === id);
-                    if (!card || card !== currentCard || card.persistent) return;
-                    tutorialCards = tutorialCards.filter(c => c.id !== id);
-                    renderTutorialCards();
-                }, duration);
-            }
+            if (!persistent) { const card=tutorialCards.find(c=>c.id===id); if(card) card.expiresAt=simulationNow()+tutorialDurationMs(guide); }
         }
 
         function showTutorialGuide(guide, targetItem, state = null, phaseLabel = '目前步驟', key = '', persistent = false) {
@@ -2478,7 +2503,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 valves[item.id] = nextState;
                 if (!nextState && ['RV1', 'Slow_RV', 'FV2', 'FV3'].includes(item.id)) {
                     if (!rpHasOpenInlet() && pumps.RP1)
-                        rpLastInletClosedAtMs = performance.now();
+                        rpLastInletClosedAtMs = simulationNow();
                 } else if (nextState && ['RV1', 'Slow_RV', 'FV2', 'FV3'].includes(item.id)) {
                     rpLastInletClosedAtMs = -Infinity;
                 }
@@ -2487,7 +2512,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 if (item.id === 'MV2' || item.id === 'MV3') {
                     mvWarningArmed[item.id] = nextState;
                     const warning = syncMvWarning(nextState);
-                    updateStatus(warning || `閥門 [${item.id}] 已切換為 ${nextState ? '開啟 (OPEN)' : '關閉 (CLOSE)'}`,
+                    updateStatus(warning || `閥門 [${displayDevice19(item.id)}] 已切換為 ${nextState ? '開啟 (OPEN)' : '關閉 (CLOSE)'}`,
                         warning ? 'red' : 'blue');
                     showTutorialForElement(item, nextState);
                     return;
@@ -2508,7 +2533,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     pvAutoPulseActive = false;
                     pvAutoPulseSeconds = 0;
                 }
-                updateStatus(`閥門 [${item.id}] 已切換為 ${valves[item.id] ? '開啟 (OPEN)' : '關閉 (CLOSE)'}`);
+                updateStatus(`閥門 [${displayDevice19(item.id)}] 已切換為 ${valves[item.id] ? '開啟 (OPEN)' : '關閉 (CLOSE)'}`);
                 showTutorialForElement(item, nextState);
             }
             else if (item.type === 'cryo') {
@@ -2965,7 +2990,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             manualProcessGasFlowSccm[id] = value;
             processGasFlowSccm[id] = value;
             renderManualParameterActuals();
-            updateStatus(`${id} 流量設為 ${value} sccm。`);
+            updateStatus(`${displayDevice19(id)} 流量設為 ${value} sccm。`);
         }
 
         function processGasPortX(id) {
@@ -4154,7 +4179,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     0, .2, Math.PI * 1.7); ctx.stroke();
                 ctx.fillStyle = '#d0a5ff';
                 for (let i = 0; i < 3; i++) {
-                    const angle = performance.now() / 700 + i * Math.PI * 2 / 3;
+                    const angle = simulationNow() / 700 + i * Math.PI * 2 / 3;
                     ctx.beginPath();
                     ctx.arc(x + Math.cos(angle) * 9, y + Math.sin(angle) * 7,
                         1.5, 0, Math.PI * 2); ctx.fill();
@@ -4413,7 +4438,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             ctx.beginPath();
             ctx.arc(0, 0, 8, 0, Math.PI * 2);
             const bpFlash = id === 'BP1' && bpWarningActive;
-            ctx.fillStyle = bpFlash ? (Math.floor(performance.now() / 400) % 2 ? '#ff9f43' : '#ff3b30') :
+            ctx.fillStyle = bpFlash ? (Math.floor(simulationNow() / 400) % 2 ? '#ff9f43' : '#ff3b30') :
                 (isActive ? '#00ff00' : '#ffffff');
             ctx.fill();
             ctx.strokeStyle = '#000000';
@@ -5954,9 +5979,10 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function animateSystem(now) {
-            const dt = Math.max(0, Math.min((now - lastTimestamp) / 1000, .1));
+            const dt = sequencePaused() ? 0 : Math.max(0, Math.min((now - lastTimestamp) / 1000, .1));
             lastTimestamp = now;
-
+            advanceSimulationClock(dt * simulationSpeed);
+            if (!sequencePaused()) {
             advanceGateTransitions(dt * simulationSpeed);
             advanceRpState(dt * simulationSpeed);
             updateVacuumModel(dt * simulationSpeed);
@@ -5969,7 +5995,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             advanceAutoProcess(dt * simulationSpeed);
             advanceAutoRpBranch(dt * simulationSpeed);
             expireAutoCompletionGuide();
-
+            }
+            expireGuideCards();
             renderSCADA();
 
             // DC readouts use the selected layer's kW and matching I = P/V.
@@ -6641,7 +6668,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             // delay, IG2, gas admission and the coating phase. Never touch the
             // global action clock used by the main sequence.
             if (rpHasOpenInlet()) return;
-            const now = performance.now();
+            const now = simulationNow();
             // Keep the foreline running across a known nearby RV/FV handoff.
             // If a promised step stalls past the window, the branch resumes.
             if (autoFlowReopensInletSoon() &&
@@ -6808,7 +6835,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             return_drive:'載盤返回 CH1', motor_section_right:'單區向右傳動',
             motor_section_left:'單區向左傳動', recipe_motor_section:'本趟單區傳動',
             return_motor_section:'返回 CH1 單區傳動',
-            wait_time:'等待實際秒數', wait_sim_time:'等待模擬秒數',
+            wait_time:'等待模擬秒數', wait_sim_time:'等待模擬秒數',
             wait_gv1_open:'等待 GV1 開到位',wait_gv1_closed:'等待 GV1 關到位',
             wait_gv2_open:'等待 GV2 開到位',wait_gv2_closed:'等待 GV2 關到位',
             wait_carrier:'等待載盤雙感應器',wait_atmosphere:'等待 CH1 到大氣壓',
@@ -7256,7 +7283,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     wait_gv2_delay:`GV2 設定 ${autoDelayGv2Sec} 模擬秒`,
                     wait_layer_delay:'依本層 Delay Time（模擬秒）',
                     wait_rp_ready:'RP 物理互鎖至少 5 秒'}[step.action];
-                const value = time ? `<input aria-label="等待秒數" type="number" min="0" max="3600" step="0.1" value="${step.seconds}" onchange="${update('seconds')}"> ${step.action === 'wait_sim_time' ? '模擬秒' : '實際秒'}` :
+                const value = time ? `<input aria-label="等待秒數" type="number" min="0" max="3600" step="0.1" value="${step.seconds}" onchange="${update('seconds')}"> ${step.action === 'wait_sim_time' ? '模擬秒' : '模擬秒'}` :
                     pressure ? `<input aria-label="壓力門檻 Torr" type="number" min="0" max="760" step="any" value="${step.threshold}" onchange="${update('threshold')}"> Torr` :
                     dynamic || (step.action.startsWith('wait_') ? '條件達標才繼續' : '動作完成即繼續');
                 return `<div class="auto-flow-row">
@@ -7399,16 +7426,16 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             let total=0, sinceAction=0;
             for(const step of upcoming) {
                 if(step.action==='check_regen' && !(['CP2','CP3'].every(cp=>cpState[cp].usagePct<=.1)&&powerFlowReady({action:'wait_cp_start_pressure'})))
-                    return total+autoRegenSettings.purgeMinutes*60000/simulationSpeed+4*flowActionIntervalMs()<=horizon;
+                    return total+autoRegenSettings.purgeMinutes*60000+4*flowActionIntervalMs()<=horizon;
                 if(inlet(step))return total+Math.max(0,flowActionIntervalMs()-sinceAction)<=horizon;
                 let duration=0;
-                if(step.action==='wait_regen_purge'||step.action==='wait_cp_regen_purge') duration=autoRegenSettings.purgeMinutes*60000/simulationSpeed;
-                else if(step.action==='wait_regen_pump'||step.action==='wait_cp_regen_pump') duration=autoRegenSettings.pumpMinutes*60000/simulationSpeed;
-                else if(step.action==='wait_gv2_delay')duration=autoDelayGv2Sec*1000/simulationSpeed;
-                else if(step.action==='wait_rf_duration')duration=autoRfSeconds*1000/simulationSpeed;
-                else if(step.action==='wait_layer_delay')duration=autoLayers[activeAutoLayerIndex].delay*1000/simulationSpeed;
+                if(step.action==='wait_regen_purge'||step.action==='wait_cp_regen_purge') duration=autoRegenSettings.purgeMinutes*60000;
+                else if(step.action==='wait_regen_pump'||step.action==='wait_cp_regen_pump') duration=autoRegenSettings.pumpMinutes*60000;
+                else if(step.action==='wait_gv2_delay')duration=autoDelayGv2Sec*1000;
+                else if(step.action==='wait_rf_duration')duration=autoRfSeconds*1000;
+                else if(step.action==='wait_layer_delay')duration=autoLayers[activeAutoLayerIndex].delay*1000;
                 else if(step.action==='wait_interval')duration=Math.max(0,flowActionIntervalMs()-sinceAction);
-                else if(step.action==='wait_time'||step.action==='wait_sim_time')duration=(step.seconds??step.value)*1000/(step.action==='wait_sim_time'?simulationSpeed:1);
+                else if(step.action==='wait_time'||step.action==='wait_sim_time')duration=(step.seconds??step.value)*1000;
                 else if(!step.action.startsWith('wait_')){duration=Math.max(0,flowActionIntervalMs()-sinceAction);sinceAction=-duration;}
                 total+=duration;sinceAction+=duration;
                 if(total>horizon)return false;
@@ -7417,7 +7444,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
         function scheduleAutoRpBranch() {
             if((isAutoRunning||autoStandbyActive||autoRegenState.running||powerSequence.active)&&pumps.RP1&&!rpHasOpenInlet()&&autoRpBranchReadyAtMs===null) {
-                autoRpBranchReadyAtMs=performance.now();autoRpBranchBpClosedAtMs=null;
+                autoRpBranchReadyAtMs=simulationNow();autoRpBranchBpClosedAtMs=null;
                 autoRpBranchStepIndex=0;autoRpBranchStepAtMs=autoRpBranchReadyAtMs;
                 autoRpBranchLastActionAtMs=-Infinity;autoRpBranchStepSimElapsed=0;
                 autoRpBranchSteps=(isAutoRunning||autoStandbyActive?activeAutoFlowSteps:autoFlowSteps)
@@ -7563,15 +7590,15 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         function executePendingAutoAction() {
             const pending=autoFlowPending,step=pending?.steps[pending.index];
             if (!step || pending.actionApplied) return true;
-            if (!step.action.startsWith('wait_') && !teachingActionReady(autoFlowLastActionAtMs)) return false;
+            if (!step.action.startsWith('wait_') && !actionReady19(step,autoTiming)) return false;
             if (!applyAutoFlowAction(step)) {
                 pauseAutoProcess(`${step.name} 未通過實體互鎖`);
                 return false;
             }
             pending.actionApplied=true;
-            pending.startedAtMs=performance.now();
+            pending.startedAtMs=simulationNow();
             autoStepSeconds=0;
-            if (!step.action.startsWith('wait_')) autoFlowLastActionAtMs=pending.startedAtMs;
+            if (!step.action.startsWith('wait_')) { autoFlowLastActionAtMs=pending.startedAtMs; recordAction19(step,autoTiming); }
             if (!isSilentFlowWait(step)) {
                 const label=`執行步驟 ${pending.index+1}/${pending.steps.length}：${step.name}`;
                 setAutoSummary(label);updateStatus(label);
@@ -7585,7 +7612,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             const step=autoFlowPending?.steps[autoFlowPending.index];
             if (!step) return;
             autoPhase='user-step';autoStepSeconds=0;
-            autoPhaseEnteredAtMs=performance.now();
+            autoPhaseEnteredAtMs=simulationNow();
             Object.assign(autoFlowPending,{startedAtMs:autoPhaseEnteredAtMs,
                 conditionReadyAtMs:null,conditionReadyAtSim:null,actionApplied:false});
             executePendingAutoAction();
@@ -7599,25 +7626,25 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 return;
             }
             if (autoFlowPending.conditionReadyAtMs === null) {
-                autoFlowPending.conditionReadyAtMs = performance.now();
-                autoFlowPending.conditionReadyAtSim = autoStepSeconds;
+                autoFlowPending.conditionReadyAtMs = autoFlowPending.startedAtMs;
+                autoFlowPending.conditionReadyAtSim = 0;
             }
             const duration = step.action === 'wait_rf_duration' ? autoRfSeconds :
                 step.action === 'wait_gv2_delay' ? autoDelayGv2Sec :
                 step.action === 'wait_layer_delay' ? autoLayers[activeAutoLayerIndex].delay :
                 step.seconds;
-            const simulationTime = ['wait_rf_duration','wait_gv2_delay','wait_layer_delay',
-                'wait_sim_time'].includes(step.action);
+            const simulationTime = true;
             const elapsed = simulationTime ?
                 autoStepSeconds - autoFlowPending.conditionReadyAtSim :
-                (performance.now() - autoFlowPending.conditionReadyAtMs) / 1000;
+                (simulationNow() - autoFlowPending.conditionReadyAtMs) / 1000;
             if (step.action === 'wait_layer_delay') {
                 autoLayerDelayElapsed = Math.min(duration,elapsed);
                 syncLayerReadouts();
             }
             if (step.action.startsWith('wait_') && !isSilentFlowWait(step) && duration > 0)
-                setAutoSummary(`${step.name}：${Math.min(duration,elapsed).toFixed(1)} / ${duration} ${simulationTime ? '模擬秒' : '實際秒'}`);
+                setAutoSummary(`${step.name}：${Math.min(duration,elapsed).toFixed(1)} / ${duration} ${simulationTime ? '模擬秒' : '模擬秒'}`);
             if (elapsed < duration) return;
+            if (autoFlowPending.index === autoFlowPending.steps.length-1 && !timingReady19(autoTiming)) return;
             autoFlowPending.index++;
             if (autoFlowPending.index < autoFlowPending.steps.length) {
                 enterAutoFlowCustomStep(); return;
@@ -7641,7 +7668,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             }
             autoPhase = phase;
             autoStepSeconds = 0;
-            autoPhaseEnteredAtMs = performance.now();
+            autoPhaseEnteredAtMs = simulationNow();
             autoGateSettledAtMs = null;
             autoCarrierPositionedAtMs = null;
             autoGv2DelayStartedAtSec = null;
@@ -7669,7 +7696,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
         function waitingForAutoStep(intervalMs = AUTO_TYPE_STEP_INTERVAL_MS) {
             if (!autoStepDelayEnabled()) return false;
-            return performance.now() - autoPhaseEnteredAtMs <
+            return simulationNow() - autoPhaseEnteredAtMs <
                 autoFlowWaitMs(autoPhase, intervalMs);
         }
 
@@ -7678,14 +7705,14 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             // The hold begins at the first observation of the gate's actual
             // limit switch, not when its one-second travel was commanded.
             if (autoGateSettledAtMs === null)
-                autoGateSettledAtMs = performance.now();
-            return performance.now() - autoGateSettledAtMs <
+                autoGateSettledAtMs = simulationNow();
+            return simulationNow() - autoGateSettledAtMs <
                 autoFlowWaitMs(autoPhase, AUTO_TYPE_STEP_INTERVAL_MS);
         }
 
         function expireAutoCompletionGuide() {
             if (autoCompletedGuideAtMs === null ||
-                performance.now() - autoCompletedGuideAtMs < sequenceStepIntervalMs) return;
+                simulationNow() - autoCompletedGuideAtMs < sequenceStepIntervalMs) return;
             autoCompletedGuideAtMs = null;
             tutorialCards = tutorialCards.filter(card =>
                 !String(card.key || '').startsWith('auto-phase:'));
@@ -7770,7 +7797,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     Object.assign(targets,pausedAutoDevices.targets);
                 }
                 if(autoFlowPending) {
-                    autoFlowPending.conditionReadyAtMs=performance.now();
+                    autoFlowPending.conditionReadyAtMs=simulationNow();
                     autoFlowPending.conditionReadyAtSim=autoStepSeconds;
                 }
                 updateAutoRunButton();return;
@@ -7778,8 +7805,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(autoPhase!=='ready'||!autoStartGateReady()) return blockOperation('CH1 須回大氣壓、載盤位於平台雙感應器，待機流程與 RP 支線完成後才可啟動。');
             if(autoRfEnabled&&!autoRfGases.size) return blockOperation('請勾選 RF 清潔氣體，或取消 RF 清潔。');
             applyAutoLayer(0);activeAutoFlowWaitOverrides={...autoFlowWaitOverrides};
-            activeAutoFlowSteps=autoFlowSteps.map(step=>({...step}));autoFlowPending=null;
-            autoFlowLastActionAtMs=-Infinity;cycleElapsedSec=0;pumpElapsedSec=0;
+            activeAutoFlowSteps=compiledAutoFlow();autoFlowPending=null;
+            autoFlowLastActionAtMs=-Infinity; resetTiming19(autoTiming); cycleElapsedSec=0;pumpElapsedSec=0;
             cycleTimerActive=true;pumpTimerActive=false;isAutoRunning=true;
             document.getElementById('btn-auto-run').innerHTML='Ⅱ 暫停自動流程';
             enterAutoPhase('gate-opening-load','開始進料：開啟 GV1');updateAutoRunButton();
@@ -7791,12 +7818,16 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(cycleTimerActive)cycleElapsedSec+=dt;
             if(pumpTimerActive)pumpElapsedSec+=dt;
             renderAutoTimers();
-            if(autoPhase==='user-step'){advanceAutoFlowCustomStep();return;}
+            if(autoPhase==='user-step'){
+                for(let i=0;i<100 && autoFlowPending && autoPhase==='user-step';i++){
+                    const p=autoFlowPending, idx=p.index; advanceAutoFlowCustomStep();
+                    if(!isAutoRunning&&!autoStandbyActive || autoFlowPending===p && p.index===idx) break;
+                } return;}
             const go=(phase,message)=>enterAutoPhase(phase,message);
             switch(autoPhase) {
                 case 'waiting-vent':
                     if(!autoFlowConditionReady({action:'wait_atmosphere'}))return;
-                    autoStandbyActive=false;autoPhase='ready';autoCompletedGuideAtMs=performance.now();
+                    autoStandbyActive=false;autoPhase='ready';autoCompletedGuideAtMs=simulationNow();
                     setAutoSummary('CH1 已破真空，兩個 Vent 已關；載盤在平台時可啟動。');updateAutoRunButton();break;
                 case 'gate-opening-load':
                     if(!autoFlowConditionReady({action:'wait_gv1_open'}))return;
@@ -7842,9 +7873,9 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     if(!autoFlowConditionReady({action:'wait_gv1_closed'}))return;
                     go('standby-finish','出料完成');break;
                 case 'standby-finish':
-                    if(!teachingActionReady(autoFlowLastActionAtMs))return;
+                    if(!timingReady19(autoTiming))return;
                     isAutoRunning=false;cycleTimerActive=false;pumpTimerActive=false;autoPhase='ready';
-                    autoCompletedGuideAtMs=performance.now();pausedAutoPhase='idle';
+                    autoCompletedGuideAtMs=simulationNow();pausedAutoPhase='idle';
                     document.getElementById('total-count-readout').value=Number(document.getElementById('total-count-readout').value||0)+1;
                     document.getElementById('btn-auto-run').innerHTML='▶ 啟動自動流程';
                     setAutoSummary('所有 Layer 完成，載盤回平台、GV1/GV2 關閉，可直接再次啟動。');
@@ -7871,7 +7902,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 }
                 stopAllMotors();
                 currentOpMode='auto';autoStandbyActive=true;
-                activeAutoFlowSteps=autoFlowSteps.map(step=>({...step}));
+                activeAutoFlowSteps=compiledAutoFlow();
                 activeAutoFlowWaitOverrides={...autoFlowWaitOverrides};
                 autoFlowPending=null;autoFlowLastActionAtMs=-Infinity;
                 applyAutoLayer(0);autoTargetQuickPick=false;
@@ -7969,7 +8000,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             wait_ch_mv:'等待 CH 壓力達 MV 開啟門檻',
             valve_open:'開啟一個閥門',valve_close:'關閉一個閥門',pump_on:'啟動一台幫浦',pump_off:'停止一台幫浦',
             cp_on:'啟動一台 CP',cp_off:'停止一台 CP',target_off:'關閉一支電源',motor_off:'停止一區傳動',
-            wait_interval:'等待步驟間隔',wait_time:'等待實際秒數',wait_sim_time:'等待模擬秒數',
+            wait_interval:'等待步驟間隔',wait_time:'等待模擬秒數',wait_sim_time:'等待模擬秒數',
             wait_rp_ready:'等待 RP 啟動滿 5 秒',wait_rp_off_ready:'等待 RV／FV、BP 全關後設定秒數',wait_pv_closed:'等待 PV 回氣結束',
             wait_gv1_open:'等待 GV1 開到位',wait_gv1_closed:'等待 GV1 關到位',wait_gv2_open:'等待 GV2 開到位',wait_gv2_closed:'等待 GV2 關到位',
             wait_gate_diff:'等待 GV2 壓差允許',wait_pressure_low:'等待壓力 ≤ 指定值',wait_pressure_high:'等待壓力 ≥ 指定值',
@@ -8113,8 +8144,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     const update=f=>`updatePowerFlowStep('${s.id}','${f}',this.value)`;
                     const choices=powerFlowTargets(s.action);
                     const numeric=['wait_time','wait_sim_time','wait_pressure_low','wait_pressure_high','wait_cp_pressure','wait_temp_low','wait_temp_high','wait_usage'].includes(s.action);
-                    const unit=(s.action.includes('pressure_')||s.action==='wait_cp_pressure')?'Torr':s.action.includes('temp_')?'K':s.action==='wait_usage'?'%':s.action==='wait_time'?'實際秒':'模擬秒';
-                    const dynamic={wait_cp_regen_purge:`兩台同時 PURGE ${autoRegenSettings.purgeMinutes} 分鐘`,wait_cp_regen_pump:`兩台同時抽氣 ${autoRegenSettings.pumpMinutes} 分鐘`,wait_interval:`沿用步驟間隔 ${sequenceStepIntervalMs/1000} 秒`,wait_rp_ready:'至少 5 秒',wait_rp_off_ready:`全關後 ${sequenceStepIntervalMs/1000} 實際秒`,wait_regen_purge:`沿用 PURGE ${autoRegenSettings.purgeMinutes} 分鐘`,wait_regen_pump:`沿用抽氣 ${autoRegenSettings.pumpMinutes} 分鐘`}[s.action];
+                    const unit=(s.action.includes('pressure_')||s.action==='wait_cp_pressure')?'Torr':s.action.includes('temp_')?'K':s.action==='wait_usage'?'%':s.action==='wait_time'?'模擬秒':'模擬秒';
+                    const dynamic={wait_cp_regen_purge:`兩台同時 PURGE ${autoRegenSettings.purgeMinutes} 分鐘`,wait_cp_regen_pump:`兩台同時抽氣 ${autoRegenSettings.pumpMinutes} 分鐘`,wait_interval:`沿用步驟間隔 ${sequenceStepIntervalMs/1000} 秒`,wait_rp_ready:'至少 5 秒',wait_rp_off_ready:`全關後 ${sequenceStepIntervalMs/1000} 模擬秒`,wait_regen_purge:`沿用 PURGE ${autoRegenSettings.purgeMinutes} 分鐘`,wait_regen_pump:`沿用抽氣 ${autoRegenSettings.pumpMinutes} 分鐘`}[s.action];
                     return `<div class="auto-flow-row"><span class="step-index">${i+1}</span>
                     <select aria-label="操作" onchange="${update('action')}">${opts(Object.entries(POWER_FLOW_ACTIONS),s.action)}</select>
                     <select aria-label="設備" onchange="${update('target')}" ${choices.length?'':'disabled'}>${opts(choices.map(t=>[t,t==='0'?'平台':t]),s.target)||'<option>－</option>'}</select>
@@ -8189,7 +8220,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(a==='wait_regen_pump')return valves['FV'+t.slice(-1)]&&pumps.RP1&&
                 powerSequence.simTime-(powerSequence.fvOpened[t]??powerSequence.simTime)>=powerFlowDuration(step)&&gasPressure(t.toLowerCase())<1.1;
             if(a==='wait_interval')return teachingActionReady(powerSequence.lastActionAtMs);
-            if(['wait_time','wait_sim_time'].includes(a))return (a==='wait_sim_time'?powerSequence.elapsed:(performance.now()-powerSequence.stepStartedAt)/1000)>=powerFlowDuration(step);
+            if(['wait_time','wait_sim_time'].includes(a))return (a==='wait_sim_time'?powerSequence.elapsed:(simulationNow()-powerSequence.stepStartedAt)/1000)>=powerFlowDuration(step);
             return autoFlowConditionReady({action:a,condition:'none'});
         }
         function powerFlowSignature(step) {
@@ -8219,7 +8250,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(a==='check_regen') {
                 const ready=['CP2','CP3'].every(cp=>cpState[cp].usagePct<=.1)&&powerFlowReady({action:'wait_cp_start_pressure'});
                 if(ready)for(const cp of ['CP2','CP3']){cpState[cp].usagePct=0;cpState[cp].overloaded=false;}
-                else {powerSequence.nextStep=powerSequence.steps.findIndex(s=>s.group==='regen');powerSequence.regenCycle++;}
+                else {powerSequence.nextStep=powerSequence.steps.findIndex(s=>(s.role||s.group)==='regen');powerSequence.regenCycle++;}
                 return true;
             }
             if(a==='cp_on'||a==='cp_off') {
@@ -8316,7 +8347,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(step.action==='motor_off'&&!overrides.anchor)item=clickTargets.find(t=>t.type==='arrow'&&t.sec===Number(step.target))||item;
             if(!item)return;
             const start=Number.isInteger(powerSequence.nextStep)?powerSequence.nextStep:powerSequence.step+1;
-            const next=powerSequence.steps.slice(start).find(s=>!powerSequence.skipGroups.has(s.group)&&!isSilentFlowWait(s));
+            const next=powerSequence.steps.slice(start).find(s=>!powerSequence.skipGroups.has(s.role||s.group)&&!isSilentFlowWait(s));
             if(!overrides.next)guide.next=next?`下一步：${next.name}`:'下一步：完成本次流程。';
             showTutorialGuide(guide,item,step.action.endsWith('_on')||step.action.endsWith('_open'),
                 '一鍵'+(powerSequence.mode==='startup'?'開機':'關機'),'power-sequence:editable',true);
@@ -8328,7 +8359,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(a==='wait_cp_warm'||a==='wait_cp_cold')return `CP2 ${cpState.CP2.tempK.toFixed(1)} K／CP3 ${cpState.CP3.tempK.toFixed(1)} K；等待兩台${a==='wait_cp_warm'?'回升至 275 K':'降至 10 K'}。`;
             if(a==='wait_ch_mv')return `等待 CH 壓力 ≤ ${formatGaugePressure(Math.min(.0099,vacuumParameters.cpCrossoverTorr))} Torr，才可隔離 RV、接通 MV。`;
             if(a==='wait_cp_regen_purge'||a==='wait_cp_regen_pump')return `兩台 CP 同時計時，各自須滿 ${powerFlowDuration(step)/60} 模擬分鐘；不是相加兩次。`;
-            if(a==='wait_rp_off_ready')return `所有 RV/FV 與 BP 全關後等待 ${sequenceStepIntervalMs/1000} 實際秒；剩餘 ${Number.isFinite(rpStopWaitRemainingMs())?(rpStopWaitRemainingMs()/1000).toFixed(1):'尚未全關'}。`;
+            if(a==='wait_rp_off_ready')return `所有 RV/FV 與 BP 全關後等待 ${sequenceStepIntervalMs/1000} 模擬秒；剩餘 ${Number.isFinite(rpStopWaitRemainingMs())?(rpStopWaitRemainingMs()/1000).toFixed(1):'尚未全關'}。`;
             if(a.includes('pressure_'))return `${t}：${formatGaugePressure(gasPressure(t))} Torr；等待 ${a.endsWith('low')?'≤':'≥'} ${formatGaugePressure(step.value)} Torr。`;
             if(a.includes('temp_'))return `${t}：${cpState[t].tempK.toFixed(1)} K；等待 ${a.endsWith('low')?'≤':'≥'} ${step.value} K。`;
             if(a==='wait_usage')return `${t} 使用率 ${cpState[t].usagePct.toFixed(1)}%；目標 ≤ ${step.value}%。`;
@@ -8338,7 +8369,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         function executePendingPowerAction() {
             const state=powerSequence,step=state.steps[state.step];
             if (!step || state.actionApplied) return true;
-            if (!step.action.startsWith('wait_') && !teachingActionReady(state.lastActionAtMs)) return false;
+            if (!step.action.startsWith('wait_') && !actionReady19(step,state.timing||(state.timing={}))) return false;
             if (step.action==='pump_off'&&step.target==='RP1'&&pumps.RP1&&!rpCanStopNow())return false;
             if (!step.action.startsWith('wait_')) {
                 if (!applyPowerFlowAction(step)) {
@@ -8346,8 +8377,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     renderPowerSequenceStatus(`流程中止於第 ${state.step+1} 步：${step.name}。請檢查閥位與步驟設定。`);
                     return false;
                 }
-                state.lastActionAtMs=performance.now();
-                state.lastActionStep=step;
+                state.lastActionAtMs=simulationNow();
+                state.lastActionStep=step; recordAction19(step,state.timing);
                 state.elapsed=0;state.stepStartedAt=state.lastActionAtMs;
             }
             state.actionApplied=true;
@@ -8358,14 +8389,14 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
         function enterEditablePowerStep() {
             const state=powerSequence;
-            while(state.steps[state.step]&&state.skipGroups.has(state.steps[state.step].group))state.step++;
+            while(state.steps[state.step]&&state.skipGroups.has(state.steps[state.step].role||state.steps[state.step].group))state.step++;
             const step=state.steps[state.step];
             if(!step){
                 state.active=false;clearPowerSequenceTutorials();
                 renderPowerSequenceStatus(state.mode==='startup'?'開機主線完成：CP 已啟動並接通 MV，持續抽氣；停 RP 支線獨立完成。':'關機完成：CH 已破真空、CP 停止，依選項完成 PURGE 回溫。');return;
             }
-            step.cycle=step.group==='regen'?state.regenCycle:0;
-            state.elapsed=0;state.stepStartedAt=performance.now();state.actionApplied=false;
+            step.cycle=(step.role||step.group)==='regen'?state.regenCycle:0;
+            state.elapsed=0;state.stepStartedAt=simulationNow();state.actionApplied=false;
             executePendingPowerAction();
         }
         function stopEditablePowerFlow() {
@@ -8380,7 +8411,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             const step=powerSequence.steps[powerSequence.step];if(!step)return;
             if(!executePendingPowerAction())return;
             if(step.action.startsWith('wait_')&&!powerFlowReady(step)){renderEditablePowerStatus();return;}
-            if(powerSequence.step===powerSequence.steps.length-1 && !teachingActionReady(powerSequence.lastActionAtMs))return;
+            if(powerSequence.step===powerSequence.steps.length-1 && !timingReady19(powerSequence.timing))return;
             if(Number.isInteger(powerSequence.nextStep)){powerSequence.step=powerSequence.nextStep;powerSequence.nextStep=null;}else powerSequence.step++;
             enterEditablePowerStep();
         }
@@ -8398,11 +8429,11 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(isSilentFlowWait(step) || !s.actionApplied){button?.classList.add('hidden');return;}
             updateStatus(`${s.mode==='startup'?'開機':'關機'} ${s.step+1}/${s.steps.length}${step.cycle?`（再生第 ${step.cycle}/${s.cycles} 輪）`:''}：${step.name}。${step.action.startsWith('wait_')?powerFlowWaitDescription(step):'已執行'}（${regenTime(s.elapsed)}）`);
             const can=powerFlowCanSkip(step);button?.classList.toggle('hidden',!can);
-            if(button&&can){const remain=Math.max(0,5000-(performance.now()-s.stepStartedAt));button.disabled=remain>0;button.textContent=remain?`快進等待（${Math.ceil(remain/1000)} 秒）`:'快進目前等待';}
+            if(button&&can){const remain=Math.max(0,5000-(simulationNow()-s.stepStartedAt));button.disabled=remain>0;button.textContent=remain?`快進等待（${Math.ceil(remain/1000)} 秒）`:'快進目前等待';}
         }
         function fastForwardEditablePowerFlow() {
             const s=powerSequence,step=s.steps[s.step];
-            if(!step||!powerFlowCanSkip(step)||performance.now()-s.stepStartedAt<5000)return;
+            if(!step||!powerFlowCanSkip(step)||simulationNow()-s.stepStartedAt<5000)return;
             fastForwardPowerWait(step);renderEditablePowerStatus();
         }
         function fastForwardPowerWait(step) {
@@ -8599,7 +8630,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             const phase = powerSequenceRegenPhase();
             if (phase !== powerSequence.regenPhaseKey) {
                 powerSequence.regenPhaseKey = phase;
-                powerSequence.stepStartedAt = performance.now();
+                powerSequence.stepStartedAt = simulationNow();
                 if (phase) updateStatus(`CP 再生：第 ${autoRegenState.completed + 1}/${autoRegenState.settings.cycles} 輪 ${autoRegenPhaseLabel()}。`);
                 if (phase) showPowerSequenceGuide('startup-regen',
                     `開機：再生第 ${autoRegenState.completed + 1}/${autoRegenState.settings.cycles} 輪`);
@@ -8692,7 +8723,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if (key === 'startup-rv-isolate' && !startupRv10kReached)
                 return `等待四腔達 10K（≤ 1.0E-5 Torr）後，再等待 ${sequenceStepIntervalMs / 1000} 秒關閉 RV1（目前 ${formatPressure(gasPressure('ch1'))} Torr）`;
             if (key === 'startup-rv-isolate' && startupRv10kReached && !startupRv10kHoldCompleted)
-                return `已達 10K；保持 RV1 開啟等待 ${sequenceStepIntervalMs / 1000} 秒後關閉（${((performance.now() - startupRv10kHoldStartedAt) / 1000).toFixed(1)} 秒）`;
+                return `已達 10K；保持 RV1 開啟等待 ${sequenceStepIntervalMs / 1000} 秒後關閉（${((simulationNow() - startupRv10kHoldStartedAt) / 1000).toFixed(1)} 秒）`;
             if (key === 'startup-fv-boost' &&
                 (gasPressure('cp2') > gaugeParameters.cg2_2 ||
                  gasPressure('cp3') > gaugeParameters.cg3_2))
@@ -8757,7 +8788,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 // 不必先等待一般開／關機的 5 秒間隔；按下後仍會從 10K 再等待 5 秒才關 RV。
                 const is10KFastForward = key === 'startup-rv-isolate';
                 const remaining = is10KFastForward ? 0 : Math.max(0, sequenceStepIntervalMs -
-                    (performance.now() - powerSequence.stepStartedAt));
+                    (simulationNow() - powerSequence.stepStartedAt));
                 skip.disabled = remaining > 0;
                 skip.textContent = remaining > 0 ? `快進等待（${Math.ceil(remaining / 1000)} 秒）` :
                     '快進目前等待';
@@ -8773,7 +8804,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             // 因此 CP 到 20 K 後立即允許按下快進，不再被設定的 5 秒擋住。
             const bypassStepInterval = key === 'startup-rv-isolate';
             if (!powerSequenceCanSkip(key) ||
-                (!bypassStepInterval && performance.now() - powerSequence.stepStartedAt < sequenceStepIntervalMs))
+                (!bypassStepInterval && simulationNow() - powerSequence.stepStartedAt < sequenceStepIntervalMs))
                 return;
             if (key === 'startup-regen') {
                 const state = autoRegenState;
@@ -8880,7 +8911,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 for (const ch of ['ch1','ch2','ch3','ch4']) setGasPressure(ch, 1.0e-5);
                 startupRv10kReached = true;
                 startupRv10kHoldCompleted = false;
-                startupRv10kHoldStartedAt = performance.now();
+                startupRv10kHoldStartedAt = simulationNow();
             } else {
                 const pressure = key === 'startup-rv' ? BP1_WARNING_PRESSURE_TORR * .9 :
                     key === 'startup-bp' ? vacuumParameters.cpCrossoverTorr * .8 :
@@ -8900,7 +8931,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             }
             updateVacuumModel(0);
             syncPowerSequenceRegenPhase();
-            powerSequence.stepStartedAt = performance.now();
+            powerSequence.stepStartedAt = simulationNow();
             renderPowerSequenceStatus();
         }
 
@@ -8924,7 +8955,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             rpShutdownRequested = false;
             isAutoRunning = false; cycleTimerActive = false; pumpTimerActive = false;
             powerSequence = {mode,custom:true,steps,step:0,active:true,elapsed:0,simTime:0,
-                stepStartedAt:performance.now(),lastActionAtMs:-Infinity,actionApplied:false,fvOpened:{},
+                stepStartedAt:simulationNow(),lastActionAtMs:-Infinity,actionApplied:false,fvOpened:{},
                 intervalSec:sequenceStepIntervalMs/1000,cycles:powerFlowSettings.cycles,
                 regenSettings:{...autoRegenSettings},skipGroups:new Set(),nextStep:null,regenCycle:1,
                 shutdownPurge:document.getElementById('chk-shutdown-purge').checked};
@@ -8932,8 +8963,12 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
         }
 
         function advancePowerSequence(dt) {
-            if (!powerSequence.active) return;
-            if (powerSequence.custom) return advanceEditablePowerFlow(dt);
+            if (!powerSequence.active || sequencePaused()) return;
+            if (powerSequence.custom) {
+                for(let i=0;i<100 && powerSequence.active;i++){
+                    const idx=powerSequence.step;advanceEditablePowerFlow(i===0?dt:0);
+                    if(powerSequence.step===idx)break;
+                }return;}
             const key = powerSequenceStepKeys(powerSequence.mode)[powerSequence.step];
             if (key === 'shutdown-gv2') advanceShutdownGateStep();
             if (key === 'startup-regen') {
@@ -8973,7 +9008,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     if (isStartup10KReached()) {
                         startupRv10kReached = true;
                         startupRv10kHoldCompleted = false;
-                        startupRv10kHoldStartedAt = performance.now();
+                        startupRv10kHoldStartedAt = simulationNow();
                         powerSequence.elapsed = 0;
                     } else {
                         // 未到 10K：RV 必須保持開啟、RP/BP 繼續抽。
@@ -8988,8 +9023,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
                 if (!startupRv10kHoldCompleted) {
                     if (!startupRv10kHoldStartedAt)
-                        startupRv10kHoldStartedAt = performance.now();
-                    const holdElapsed = performance.now() - startupRv10kHoldStartedAt;
+                        startupRv10kHoldStartedAt = simulationNow();
+                    const holdElapsed = simulationNow() - startupRv10kHoldStartedAt;
                     if (holdElapsed < sequenceStepIntervalMs) {
                         powerSequence.elapsed = holdElapsed / 1000;
                         renderPowerSequenceStatus(`已達 10K；保持 RV1 開啟等待 ${sequenceStepIntervalMs / 1000} 秒後才關閉 RV1（${(holdElapsed / 1000).toFixed(1)} 秒）`);
@@ -9002,8 +9037,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     valves.RV1 = false;
                     valves.Slow_RV = false;
                     powerSequence.elapsed = 0;
-                    powerSequence.stepStartedAt = performance.now();
-                    lastAutomatedActionMs = performance.now();
+                    powerSequence.stepStartedAt = simulationNow();
+                    lastAutomatedActionMs = simulationNow();
                     updateStatus('10K 已保持完成：RV1 已關閉；等待步驟間隔後關閉 BP1。');
                     return;
                 }
@@ -9020,16 +9055,16 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 powerSequence.elapsed += dt;
                 renderPowerSequenceStatus();
                 if (powerSequence.elapsed < POWER_SEQUENCE_STEP_SEC ||
-                    performance.now() - powerSequence.stepStartedAt < sequenceStepIntervalMs)
+                    simulationNow() - powerSequence.stepStartedAt < sequenceStepIntervalMs)
                     return;
 
                 if (key === 'startup-rv-bp-stop') {
                     pumps.BP1 = false;
-                    lastAutomatedActionMs = performance.now();
+                    lastAutomatedActionMs = simulationNow();
                     recordAutomaticAction();
                     powerSequence.step = powerSequenceStepKeys('startup').indexOf('startup-mv');
                     powerSequence.elapsed = 0;
-                    powerSequence.stepStartedAt = performance.now();
+                    powerSequence.stepStartedAt = simulationNow();
                     renderPowerSequenceStatus('BP1 已關閉；等待步驟間隔後開啟 MV2／MV3。');
                     return;
                 }
@@ -9044,11 +9079,11 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     valves.MV3 = true;
                     mvWarningArmed.MV2 = true;
                     mvWarningArmed.MV3 = true;
-                    lastAutomatedActionMs = performance.now();
+                    lastAutomatedActionMs = simulationNow();
                     recordAutomaticAction();
                     powerSequence.step = powerSequenceStepKeys('startup').indexOf('startup-rp-stop');
                     powerSequence.elapsed = 0;
-                    powerSequence.stepStartedAt = performance.now();
+                    powerSequence.stepStartedAt = simulationNow();
                     renderPowerSequenceStatus('MV2／MV3 已開啟；等待步驟間隔後停止 RP1。');
                     return;
                 }
@@ -9061,7 +9096,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                     if (pumps.RP1 || rpStopRemaining > 0 || pvAutoPulseActive) return;
                     powerSequence.step = powerSequenceStepKeys('startup').indexOf('startup-ready');
                     powerSequence.elapsed = 0;
-                    powerSequence.stepStartedAt = performance.now();
+                    powerSequence.stepStartedAt = simulationNow();
                     renderPowerSequenceStatus('RP1 已停止；確認高真空後完成開機。');
                     return;
                 }
@@ -9082,7 +9117,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 return;
             powerSequence.step = nextPowerSequenceStepIndex(powerSequence.mode, powerSequence.step + 1);
             powerSequence.elapsed = 0;
-            powerSequence.stepStartedAt = performance.now();
+            powerSequence.stepStartedAt = simulationNow();
             powerSequence.regenPhaseKey = '';
             const keys = powerSequenceStepKeys(powerSequence.mode);
             if (powerSequence.step >= keys.length) {
@@ -9293,6 +9328,505 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             }
             startPowerSequence('shutdown');
         }
+
+        // v19 workflow editor: stable guide numbers, editable grouping and simulation-clock scheduling.
+        const FLOW19_KEY='sputterWorkflowWorkspace_v19';
+        const defaultGroups19={auto:AUTO_FLOW_PHASES.map(([id,name])=>({id,name,role:id})),
+            startup:POWER_FLOW_GROUPS.startup.map(([id,name])=>({id,name,role:id})),
+            shutdown:POWER_FLOW_GROUPS.shutdown.map(([id,name])=>({id,name,role:id}))};
+        let flowGroups19=JSON.parse(JSON.stringify(defaultGroups19));
+        let guideCatalog19=[],guideSerial19=0,guidePage19=0,groupSerial19=0;
+        let liveEdit19=null,autoTiming={},defaultGuideCatalog19=[];
+        const guidePositions19={auto:'自動避讓',left:'元件左側',right:'元件右側',top:'元件上方',bottom:'元件下方',
+            'top-left':'畫面左上','top-right':'畫面右上','bottom-left':'畫面左下','bottom-right':'畫面右下',custom:'自訂百分比位置'};
+        const guideEdges19={auto:'朝向元件',left:'視窗左邊',right:'視窗右邊',top:'視窗上邊',bottom:'視窗下邊'};
+        const escape19=autoFlowEscape;
+        function displayDevice19(id){return ({V2:'V1',V3:'V2',V1_1:'V1.1',V1_2:'V1.2',Slow:'Slow Vent',Slow_RV:'Slow RV'})[id]||id;}
+        function displayText19(s){return String(s||'').replace(/\bV[23]\b/g,m=>m==='V2'?'V1':'V2').replaceAll('V1_1','V1.1').replaceAll('V1_2','V1.2');}
+        function sequencePaused(){return autoPhase==='paused'||!!liveEdit19;}
+        function advanceSimulationClock(dt){if(!sequencePaused())simulationElapsedMs+=Math.max(0,dt)*1000;}
+        function expireGuideCards(){
+            if(sequencePaused())return;
+            const count=tutorialCards.length;tutorialCards=tutorialCards.filter(c=>c.persistent||!c.expiresAt||simulationNow()<c.expiresAt);
+            if(tutorialCards.length!==count)renderTutorialCards();
+        }
+        function resetTiming19(t){t.deadline=-Infinity;t.last=null;t.batchAt=null;}
+        function timingReady19(t){return !t||!Number.isFinite(t.deadline)||simulationNow()+.001>=t.deadline;}
+        function actionReady19(step,t){return !!(step.withPrevious&&t?.last&&!t.last.action.startsWith('wait_'))||timingReady19(t);}
+        function stepGuide19(step,mode='auto'){
+            if(step.guideId===0)return null;
+            if(Number.isInteger(step.guideId))return guideCatalog19.find(g=>g.id===step.guideId)||null;
+            let key=mode==='auto'?`auto-step:${step.id}`:`power:${mode}:${step.id}`;
+            if(dcLayerTargets.includes(step.target))key=`manual:DC1_A:${step.action.endsWith('_on')?'on':'off'}`;
+            return guideCatalog19.find(g=>g.key===key)||null;
+        }
+        function stepInterval19(step){return step.minAfter==null?flowActionIntervalMs()/1000:step.minAfter;}
+        function recordAction19(step,t,mode='auto'){
+            t=t||{};
+            const simultaneous=step.withPrevious&&t.last&&!t.last.action.startsWith('wait_');
+            const g=stepGuide19(step,mode);
+            const hold=tutorialModeEnabled()&&g?.hold!=null?g.hold:0;
+            const deadline=simulationNow()+1000*Math.max(stepInterval19(step),hold);
+            t.deadline=simultaneous?Math.max(t.deadline||0,deadline):deadline;
+            t.last=step;t.batchAt=simultaneous?t.batchAt:simulationNow();
+        }
+        function normalizeStep19(s){
+            const min=s.minAfter==null||s.minAfter===''?null:Number(s.minAfter),g=s.guideId==null||s.guideId===''?null:Number(s.guideId);
+            if(min!==null&&(!Number.isFinite(min)||min<0||min>3600))throw Error('至少等待秒數須為 0～3600');
+            if(g!==null&&(!Number.isInteger(g)||g<0))throw Error('說明編號須為非負整數');
+            const anchor=String(s.guideAnchor||'');if(anchor&&!Object.hasOwn(tutorialGuides,anchor))throw Error('指向元件無效');
+            return {...s,minAfter:min,withPrevious:s.withPrevious===true,guideId:g,guideAnchor:anchor};
+        }
+        function groupOf19(kind,step){return flowGroups19[kind].find(g=>g.id===(step.group||step.before));}
+        function compiledAutoFlow(){return flowGroups19.auto.flatMap(g=>autoFlowSteps.filter(s=>(s.group||s.before)===g.id).map(s=>({...s,before:g.role,group:g.id})));}
+        compiledPowerFlow=function(mode){return flowGroups19[mode].flatMap(g=>powerFlowSettings[mode].filter(s=>s.group===g.id).map(s=>({...s,role:g.role,cycle:g.role==='regen'?1:0})));};
+        function syncGroups19(){for(const mode of ['startup','shutdown'])POWER_FLOW_GROUPS[mode].splice(0,POWER_FLOW_GROUPS[mode].length,...flowGroups19[mode].map(g=>[g.id,g.name]));}
+        function saveWorkspace19(){
+            try{localStorage.setItem(FLOW19_KEY,JSON.stringify(workspacePayload19()));}
+            catch(error){updateStatus('設定無法儲存，請匯出備份。');}
+        }
+        function workspacePayload19(){return {version:19,groups:flowGroups19,auto: autoFlowSteps,waits:autoFlowWaitOverrides,
+            power:powerFlowSettings,guides:guideCatalog19,guideSerial:guideSerial19};}
+        function validateGroups19(groups){
+            const result={};for(const kind of ['auto','startup','shutdown']){
+                if(!Array.isArray(groups?.[kind])||groups[kind].length>100)throw Error('分組格式錯誤');
+                const seen=new Set();result[kind]=groups[kind].map(g=>{
+                    if(!g||!/^[-a-zA-Z0-9_]+$/.test(g.id)||seen.has(g.id)||typeof g.name!=='string'||!g.name.trim()||g.name.length>80)throw Error('分組名稱或編號無效');
+                    if(!defaultGroups19[kind].some(d=>d.role===g.role)&&!(kind!=='auto'&&g.role==='custom'))throw Error('分組執行時機無效');
+                    seen.add(g.id);return {id:g.id,name:g.name,role:g.role};
+                });
+            }return result;
+        }
+        function validateGuide19(g){
+            if(!g||!Number.isSafeInteger(g.id)||g.id<1||g.id>1000000000)throw Error('說明編號無效');
+            const result={id:g.id,key:String(g.key||`custom:${g.id}`),group:String(g.group||'custom')};
+            for(const f of GUIDE_FIELDS){if(typeof g[f]!=='string'||g[f].length>GUIDE_HARD_MAX[f])throw Error('說明文字過長');result[f]=g[f];}
+            result.anchor=String(g.anchor||'');if(result.anchor&&!Object.hasOwn(tutorialGuides,result.anchor))throw Error('指向元件無效');
+            result.position=g.position||'auto';result.edge=g.edge||'auto';
+            if(!Object.hasOwn(guidePositions19,result.position)||!Object.hasOwn(guideEdges19,result.edge))throw Error('說明位置無效');
+            result.x=Number(g.x??65);result.y=Number(g.y??5);result.hold=g.hold==null||g.hold===''?null:Number(g.hold);
+            if(!Number.isFinite(result.x)||!Number.isFinite(result.y)||result.x<0||result.x>100||result.y<0||result.y>100||result.hold!==null&&(!Number.isFinite(result.hold)||result.hold<0||result.hold>3600))throw Error('位置或秒數超出範圍');
+            return result;
+        }
+        function importWorkspace19(data){
+            if(data?.version!==19)throw Error('不是 v19 流程／說明設定');
+            const groups=validateGroups19(data.groups),oldGroups=flowGroups19;
+            if(!Array.isArray(data.guides)||data.guides.length>2000)throw Error('說明清單無效');
+            const guides=data.guides.map(validateGuide19);if(new Set(guides.map(g=>g.id)).size!==guides.length)throw Error('說明編號重複');
+            if(!Array.isArray(data.auto)||data.auto.length>400)throw Error('自動流程步驟無效');
+            const auto=data.auto.map(s=>{
+                const g=groups.auto.find(g=>g.id===(s.group||s.before));if(!g)throw Error('動作找不到分組');
+                const n=normalizeAutoFlowStep({...s,before:g.role});if(!n)throw Error('自動流程動作無效');
+                return normalizeStep19({...s,...n,before:g.role,group:g.id});
+            });
+            if(new Set(auto.map(s=>s.id)).size!==auto.length)throw Error('動作編號重複');
+            let power;
+            try{
+                flowGroups19=groups;syncGroups19();power=normalizePowerFlow(data.power);
+                for(const mode of ['startup','shutdown'])power[mode]=power[mode].map((s,i)=>normalizeStep19({...s,...data.power[mode][i]}));
+            }finally{flowGroups19=oldGroups;syncGroups19();}
+            const all=[...auto,...power.startup,...power.shutdown];
+            if(all.some(s=>s.guideId>0&&!guides.some(g=>g.id===s.guideId)))throw Error('流程引用不存在的說明編號');
+            const waits={};for(const [key,label,def,min] of AUTO_FLOW_WAITS)if(Object.hasOwn(data.waits||{},key)){
+                const n=Number(data.waits[key]);if(!Number.isFinite(n)||n<min||n>3600)throw Error('支線時間無效');waits[key]=n;
+            }
+            flowGroups19=groups;autoFlowSteps=auto;powerFlowSettings=power;autoFlowWaitOverrides=waits;
+            guideCatalog19=guides;guideSerial19=Math.max(Number(data.guideSerial)||0,...guides.map(g=>g.id),0);syncGroups19();
+        }
+        const oldSaveAuto19=saveAutoFlowSettings,oldSavePower19=savePowerFlowSettings;
+        saveAutoFlowSettings=function(){oldSaveAuto19();saveWorkspace19();};
+        savePowerFlowSettings=function(){oldSavePower19();saveWorkspace19();};
+        function allRows19(kind){return kind==='auto'?autoFlowSteps:powerFlowSettings[kind];}
+        function saveKind19(kind){if(kind==='auto')saveAutoFlowSettings();else savePowerFlowSettings();}
+        function renderKind19(kind){if(kind==='auto')renderAutoFlowEditor();else renderPowerFlowEditor();}
+        function addFlowGroup19(kind){
+            const name=window.prompt('新分組名稱','自訂分組');if(!name?.trim())return;
+            const role=kind==='auto'?'standby-finish':'custom';
+            const id=`group-${Date.now()}-${++groupSerial19}`;
+            flowGroups19[kind].push({id,name:name.trim().slice(0,80),role});autoFlowExpandedStages.add(kind+':'+id);syncGroups19();saveKind19(kind);renderKind19(kind);
+        }
+        function updateGroup19(kind,id,field,value){
+            const g=flowGroups19[kind].find(g=>g.id===id);if(!g)return;
+            if(field==='name'&&!value.trim())return renderKind19(kind);
+            if(field==='role'&&!defaultGroups19[kind].some(g=>g.role===value)&&value!=='custom')return;
+            g[field]=field==='name'?value.trim().slice(0,80):value;
+            if(kind==='auto')for(const s of autoFlowSteps)if((s.group||s.before)===id){s.group=id;s.before=g.role;}
+            syncGroups19();saveKind19(kind);renderKind19(kind);
+        }
+        function removeGroup19(kind,id){
+            const rows=allRows19(kind),members=rows.filter(s=>(s.group||s.before)===id),g=flowGroups19[kind].find(g=>g.id===id);
+            if(!window.confirm(`刪除「${g?.name}」及其中 ${members.length} 個動作？說明視窗會保留。`))return;
+            flowGroups19[kind]=flowGroups19[kind].filter(g=>g.id!==id);
+            const kept=rows.filter(s=>!members.includes(s));if(kind==='auto')autoFlowSteps=kept;else powerFlowSettings[kind]=kept;
+            syncGroups19();saveKind19(kind);renderKind19(kind);
+        }
+        function moveGroup19(kind,id,dir){
+            const groups=flowGroups19[kind],i=groups.findIndex(g=>g.id===id),j=i+dir;if(i<0||j<0||j>=groups.length)return;
+            [groups[i],groups[j]]=[groups[j],groups[i]];syncGroups19();saveKind19(kind);renderKind19(kind);
+        }
+        function options19(list,current){return list.map(([v,n])=>`<option value="${escape19(v)}" ${String(v)===String(current)?'selected':''}>${escape19(n)}</option>`).join('');}
+        function groupHeader19(kind,g,index){
+            const roles=kind==='auto'?defaultGroups19.auto.map(g=>[g.role,g.name]):[['custom','一般分組'],...defaultGroups19[kind].map(g=>[g.role,g.name])];
+            return `<div class="group-controls19"><label>分組名稱 <input value="${escape19(g.name)}" onchange="updateGroup19('${kind}','${g.id}','name',this.value)"></label>
+            <label>${kind==='auto'?'執行時機':'條件／循環用途'} <select onchange="updateGroup19('${kind}','${g.id}','role',this.value)">${options19(roles,g.role)}</select></label>
+            <button class="scada-button" onclick="moveGroup19('${kind}','${g.id}',-1)">↑ 分組</button><button class="scada-button" onclick="moveGroup19('${kind}','${g.id}',1)">↓ 分組</button>
+            <button class="scada-button" onclick="removeGroup19('${kind}','${g.id}')">刪除分組</button></div>`;
+        }
+        function extraStepFields19(kind,s){
+            const guide=stepGuide19(s,kind),update=f=>`editStep19('${kind}','${s.id}','${f}',this.value)`;
+            const anchorOpts=[['','依說明／目前元件'],...Object.keys(tutorialGuides).map(k=>[k,displayDevice19(k)])];
+            return `<div class="step-extra19">
+            <label>動作後至少等待 <input type="number" min="0" max="3600" step="0.1" placeholder="預設" value="${s.minAfter??''}" onchange="${update('minAfter')}"> 模擬秒 <small>空白：一般 1 秒／教學依主畫面</small></label>
+            <label><input type="checkbox" ${s.withPrevious?'checked':''} onchange="editStep19('${kind}','${s.id}','withPrevious',this.checked)">與前一動作同時執行</label>
+            <label>說明 # <input type="number" min="0" step="1" value="${s.guideId??guide?.id??0}" onchange="${update('guideId')}"><button class="scada-button" onclick="openStepGuide19('${kind}','${s.id}')">選擇／編輯</button><small>${guide?escape19(guide.title):'不顯示（0）'}</small></label>
+            <label>箭頭指向 <select onchange="${update('guideAnchor')}">${options19(anchorOpts,s.guideAnchor||'')}</select></label></div>`;
+        }
+        function editStep19(kind,id,field,value){
+            const s=allRows19(kind).find(s=>s.id===id);if(!s)return;
+            let n;try{n=normalizeStep19({...s,[field]:value});if(n.guideId>0&&!guideCatalog19.some(g=>g.id===n.guideId))throw Error('找不到這個說明編號，請先新增或選擇。');}
+            catch(error){window.alert(error.message);renderKind19(kind);return;}
+            Object.assign(s,n);saveKind19(kind);renderKind19(kind);
+        }
+        function addStep19(kind,gid){
+            const g=flowGroups19[kind].find(g=>g.id===gid);if(!g)return;
+            if(kind==='auto')autoFlowSteps.push({id:`af${++autoFlowStepCounter}`,before:g.role,group:gid,action:'wait_sim_time',name:'等待模擬秒數',target:'',condition:'none',seconds:1,threshold:0,minAfter:null,withPrevious:false,guideId:0});
+            else powerFlowSettings[kind].push({id:`new-${++powerFlowId}`,group:gid,action:'wait_sim_time',name:'等待模擬秒數',target:'',value:1,minAfter:null,withPrevious:false,guideId:0});
+            saveKind19(kind);renderKind19(kind);
+        }
+        function shiftStep19(kind,id,dir){const rows=allRows19(kind),i=rows.findIndex(s=>s.id===id);if(i<0)return;
+            let j=i+dir;while(j>=0&&j<rows.length&&(rows[j].group||rows[j].before)!==(rows[i].group||rows[i].before))j+=dir;
+            if(j<0||j>=rows.length)return;[rows[i],rows[j]]=[rows[j],rows[i]];saveKind19(kind);renderKind19(kind);}
+        function moveStepGroup19(kind,id,gid){const s=allRows19(kind).find(s=>s.id===id),g=flowGroups19[kind].find(g=>g.id===gid);if(!s||!g)return;
+            s.group=gid;if(kind==='auto')s.before=g.role;saveKind19(kind);renderKind19(kind);}
+        function rowButtons19(kind,s){return `<span class="buttons"><button class="scada-button" onclick="shiftStep19('${kind}','${s.id}',-1)">↑</button><button class="scada-button" onclick="shiftStep19('${kind}','${s.id}',1)">↓</button><button class="scada-button" onclick="${kind==='auto'?'removeAutoFlowStep':'removePowerFlowStep'}('${s.id}')">刪</button></span>`;}
+        function renderGroups19(kind){
+            const groups=flowGroups19[kind],rows=allRows19(kind),auto=kind==='auto';
+            const filter=document.getElementById('auto-flow-stage-filter'),selection=auto?filter.value||'all':'all';
+            if(auto){filter.innerHTML=options19([['all','全部分組'],...groups.map(g=>[g.id,g.name])],selection);filter.value=groups.some(g=>g.id===selection)?selection:'all';}
+            return groups.filter(g=>!auto||filter.value==='all'||g.id===filter.value).map((g,gi)=>{
+                const groupRows=rows.filter(s=>(s.group||s.before)===g.id);
+                return `<details class="auto-flow-stage" ${autoFlowExpandedStages.has(kind+':'+g.id)?'open':''} ontoggle="if(this.open)autoFlowExpandedStages.add('${kind}:${g.id}');else autoFlowExpandedStages.delete('${kind}:${g.id}')"><summary>${gi+1}. ${escape19(g.name)}　${groupRows.length} 步</summary>`+groupHeader19(kind,g,gi)+groupRows.map((s,i)=>{
+                    const update=f=>auto?`updateAutoFlowStep('${s.id}','${f}',this.value)`:`updatePowerFlowStep('${s.id}','${f}',this.value)`;
+                    const actions=Object.entries(auto?AUTO_FLOW_ACTION_NAMES:POWER_FLOW_ACTIONS).map(([k,n])=>[k,k==='wait_time'?'等待模擬秒數（舊設定）':n]);
+                    const choices=auto?autoFlowAllowedTargets(s.action):powerFlowTargets(s.action);
+                    const number=auto?['wait_time','wait_sim_time','wait_cg1','wait_cg1_high','wait_bg1','wait_ig2'].includes(s.action):['wait_time','wait_sim_time','wait_pressure_low','wait_pressure_high','wait_cp_pressure','wait_temp_low','wait_temp_high','wait_usage'].includes(s.action);
+                    const field=auto?['wait_time','wait_sim_time'].includes(s.action)?'seconds':'threshold':'value';
+                    const value=number?`<input aria-label="等待秒數或門檻" type="number" min="0" step="any" value="${s[field]}" onchange="${update(field)}"> ${s.action.includes('time')?'模擬秒':s.action.includes('temp')?'K':s.action.includes('usage')?'%':'Torr'}`:s.action.startsWith('wait_')?'依參數／感應條件等待':'執行動作';
+                    return `<div class="step-block19"><div class="auto-flow-row"><span class="step-index">${i+1}</span><select aria-label="操作" onchange="${update('action')}">${options19(actions,s.action)}</select><select aria-label="設備" onchange="${update('target')}" ${choices.length?'':'disabled'}>${options19(choices.map(k=>[k,displayDevice19(k)]),s.target)||'<option>－</option>'}</select><span class="step-value">${value}</span>${rowButtons19(kind,s)}
+                    <span class="step-description"><label>名稱 <input value="${escape19(s.name)}" onchange="${update('name')}"></label><label>移到分組 <select onchange="moveStepGroup19('${kind}','${s.id}',this.value)">${options19(groups.map(g=>[g.id,g.name]),g.id)}</select></label></span></div>${extraStepFields19(kind,s)}</div>`;
+                }).join('')+`<button class="scada-button stage-add" onclick="addStep19('${kind}','${g.id}')">＋ 新增動作</button></details>`;
+            }).join('');
+        }
+        renderAutoFlowEditor=function(){const out=document.getElementById('auto-flow-custom');if(!out)return;
+            out.innerHTML=renderGroups19('auto');document.getElementById('auto-flow-reopen').value=configuredAutoFlowSeconds('rp-branch-reopen');};
+        renderPowerFlowEditor=function(){document.getElementById('power-flow-title').textContent=powerFlowEditMode==='startup'?'一鍵開機流程':'一鍵關機流程';
+            document.getElementById('power-flow-cycles-wrap').classList.toggle('hidden',powerFlowEditMode!=='startup');
+            document.getElementById('power-flow-cycles').value=powerFlowSettings.cycles;document.getElementById('power-flow-list').innerHTML=renderGroups19(powerFlowEditMode);};
+        const updateAutoOriginal19=updateAutoFlowStep,updatePowerOriginal19=updatePowerFlowStep;
+        updateAutoFlowStep=function(id,f,v){const s=autoFlowSteps.find(s=>s.id===id);if(!s)return;const extra=normalizeStep19(s);updateAutoOriginal19(id,f,v);const n=autoFlowSteps.find(s=>s.id===id);if(n){for(const k of ['group','minAfter','withPrevious','guideId','guideAnchor'])n[k]=extra[k];saveWorkspace19();renderAutoFlowEditor();}};
+        updatePowerFlowStep=function(id,f,v){updatePowerOriginal19(id,f,v);saveWorkspace19();};
+        function createCatalog19(){
+            guideCatalog19=guideRegistry.map(e=>({id:++guideSerial19,key:e.key,group:e.group,
+                title:displayText19(e.obj.title||e.label),body:displayText19(e.obj.body||''),next:displayText19(e.obj.next||''),
+                anchor:e.hasAnchor&&Object.hasOwn(tutorialGuides,e.obj.anchor)?e.obj.anchor:'',position:'auto',edge:'auto',x:65,y:5,hold:null}));
+            defaultGuideCatalog19=JSON.parse(JSON.stringify(guideCatalog19));
+        }
+        function guideOptionsFields19(g,prefix,live=false){
+            const change=f=>live?'previewLiveGuide19()':`changeGuide19(${g.id},'${f}',this.value)`;
+            const field=(f,label,tag='input')=>`<label>${label}<${tag} id="${prefix}-${f}" data-guide-field="${f}" ${tag==='textarea'?'rows="3"':`value="${escape19(g[f])}"`} onchange="${change(f)}" ${live?'oninput="previewLiveGuide19()"':''}>${tag==='textarea'?escape19(g[f]):''}${tag==='textarea'?'</textarea>':''}</label>`;
+            return field('title','標題')+field('body','內文','textarea')+field('next','下一步')+
+                `<div class="guide-position19"><label>視窗位置 <select id="${prefix}-position" onchange="${change('position')}">${options19(Object.entries(guidePositions19),g.position)}</select></label>
+                <label>箭頭由哪邊出發 <select id="${prefix}-edge" onchange="${change('edge')}">${options19(Object.entries(guideEdges19),g.edge)}</select></label>
+                <label>指向元件 <select id="${prefix}-anchor" onchange="${change('anchor')}">${options19([['','依動作元件'],...Object.keys(tutorialGuides).map(k=>[k,displayDevice19(k)])],g.anchor)}</select></label>
+                <label>自訂位置 X % <input id="${prefix}-x" type="number" min="0" max="100" value="${g.x}" onchange="${change('x')}"></label>
+                <label>自訂位置 Y % <input id="${prefix}-y" type="number" min="0" max="100" value="${g.y}" onchange="${change('y')}"></label>
+                <label>說明至少等待 <input id="${prefix}-hold" type="number" min="0" max="3600" step="0.1" placeholder="沿用動作" value="${g.hold??''}" onchange="${change('hold')}"> 模擬秒</label></div>`;
+        }
+        renderGuideEditor=function(){
+            const q=String(guideEditorQuery||'').toLowerCase();const list=guideCatalog19.filter(g=>`${g.id} ${g.title} ${g.body} ${g.next}`.toLowerCase().includes(q)).sort((a,b)=>a.id-b.id);
+            const pages=Math.max(1,Math.ceil(list.length/20));guidePage19=Math.max(0,Math.min(guidePage19,pages-1));
+            document.getElementById('guide-page-label').textContent=`${guidePage19+1} / ${pages} 頁 · ${list.length} 則`;
+            document.getElementById('ge-list').innerHTML=list.slice(guidePage19*20,guidePage19*20+20).map(g=>`<article class="ge-card" id="guide-card-${g.id}"><div class="ge-head"><strong>#${String(g.id).padStart(3,'0')} · ${escape19(g.title)}</strong><button class="scada-button ge-mini" onclick="previewCatalogGuide19(${g.id})">預覽</button><button class="scada-button ge-mini" onclick="deleteGuide19(${g.id})">刪除</button></div><div class="guide-form19">${guideOptionsFields19(g,'catalog-'+g.id)}</div></article>`).join('')||'<p>沒有符合的說明。</p>';
+            document.getElementById('ge-status').textContent='已自動儲存；流水號固定，動作可共用說明';
+        };
+        setGuideEditorQuery=function(q){guideEditorQuery=q;guidePage19=0;renderGuideEditor();};
+        function changeGuide19(id,field,value){const g=guideCatalog19.find(g=>g.id===id);if(!g)return;
+            try{Object.assign(g,validateGuide19({...g,[field]:value}));saveWorkspace19();refreshLiveCards19(id);updateCatalogPreview19(g);}
+            catch(error){window.alert(error.message);renderGuideEditor();}}
+        function addGuide19(){const g={id:++guideSerial19,key:`custom:${guideSerial19}`,group:'custom',title:'新的說明',body:'請輸入說明內容。',next:'',anchor:'',position:'auto',edge:'auto',x:65,y:5,hold:null};
+            guideCatalog19.push(g);saveWorkspace19();guideEditorQuery=String(g.id);document.getElementById('ge-search').value=guideEditorQuery;guidePage19=0;renderGuideEditor();return g;}
+        function deleteGuide19(id){
+            const refs=[...autoFlowSteps,...powerFlowSettings.startup,...powerFlowSettings.shutdown].filter(s=>s.guideId===id);
+            if(!window.confirm(`刪除說明 #${id}？${refs.length} 個動作將改成不顯示說明，動作仍會執行。`))return;
+            guideCatalog19=guideCatalog19.filter(g=>g.id!==id);for(const s of refs)s.guideId=0;
+            // Running snapshots may still refer to a removed number; rendering resolves it as no card.
+            tutorialCards=tutorialCards.filter(c=>c.guide?._guideId!==id);saveWorkspace19();renderGuideEditor();renderTutorialCards();
+        }
+        function updateCatalogPreview19(g){for(const f of GUIDE_FIELDS)document.getElementById('ge-prev-'+f).textContent=g[f];document.getElementById('ge-prev-phase').textContent=`說明 #${g.id}`;}
+        function previewCatalogGuide19(id){const g=guideCatalog19.find(g=>g.id===id);if(!g)return;updateCatalogPreview19(g);
+            document.getElementById('chk-power-instant').checked=true;showScadaPage('main');
+            renderSCADA();const item=findTutorialItem(g.anchor||'RP1');if(item)showCatalogGuide19(g,item,null,'說明預覽','catalog-preview',false);
+        }
+        let pickerStep19=null;
+        function openStepGuide19(kind,id){pickerStep19={kind,id};const s=allRows19(kind).find(s=>s.id===id),g=stepGuide19(s,kind);
+            const dialog=document.getElementById('guide-picker19');document.getElementById('guide-picker-search19').value='';renderGuidePicker19();
+            document.getElementById('guide-picker-current19').textContent=g?`目前：#${g.id} ${g.title}`:'目前：不顯示';dialog.showModal();}
+        function renderGuidePicker19(){const q=document.getElementById('guide-picker-search19').value.toLowerCase();
+            document.getElementById('guide-picker-list19').innerHTML=guideCatalog19.filter(g=>`${g.id} ${g.title} ${g.body}`.toLowerCase().includes(q)).sort((a,b)=>a.id-b.id).map(g=>`<div><button class="scada-button" onclick="chooseGuide19(${g.id})">使用 #${g.id}</button><span>${escape19(g.title)}</span><button class="scada-button" onclick="editPickedGuide19(${g.id})">編輯</button></div>`).join('');}
+        function chooseGuide19(id){if(pickerStep19)editStep19(pickerStep19.kind,pickerStep19.id,'guideId',id);document.getElementById('guide-picker19').close();}
+        function editPickedGuide19(id){document.getElementById('guide-picker19').close();setSystemSettingsTab('guides');guideEditorQuery=String(id);document.getElementById('ge-search').value=String(id);renderGuideEditor();}
+        function showCatalogGuide19(g,item,state,phase,key,persistent=true,step=null,kind='auto'){
+            if(!g){if(key)tutorialCards=tutorialCards.filter(c=>c.key!==key);renderTutorialCards();return;}
+            const anchor=step?.guideAnchor||g.anchor;
+            if(anchor)item=findTutorialItem(anchor)||item;
+            if(!item)return;
+            const guide={...g,_guideId:g.id};
+            showTutorialGuide(guide,item,state,`${phase} · #${String(g.id).padStart(3,'0')}`,key,persistent);
+            const card=tutorialCards.find(c=>c.guide?._guideId===g.id);if(card){card.step=step;card.kind=kind;card.originalTarget=item;}
+        }
+        showAutoFlowStepGuide=function(step,branch=false){
+            if(!tutorialModeEnabled())return;
+            const g=stepGuide19(step,'auto');
+            let anchor=step.target||({wait_cg1_high:'Slow',wait_cg1:'RV1',wait_cg1_bp:'BP1',wait_cg1_limit:'RV1',wait_bg1_limit:'VB1',wait_bg2_range:'VB2',wait_gv2_delay:'GV2',wait_rf_duration:'RF',wait_rp_ready:'RP1',wait_rp_off_ready:'RP1'})[step.action]||'GV2';
+            if(step.action.includes('motor')||step.action==='wait_carrier')anchor=`MOTOR${step.target==='pass_end'?autoCoatingEndSec:step.target}_RIGHT`;
+            showCatalogGuide19(g,findTutorialItem(anchor),null,branch?'RP 獨立支線':'自動流程',branch?'auto-rp-step':'auto-phase:atomic',!branch,step);
+        };
+        showEditablePowerGuide=function(step){
+            const mode=powerSequence.mode,g=stepGuide19(step,mode),base=powerFlowGuideDefaults(mode,step);
+            let anchor=base.anchor;if(step.action==='motor_off')anchor=`MOTOR${step.target}_STOP`;
+            showCatalogGuide19(g,findTutorialItem(anchor),null,mode==='startup'?'一鍵開機':'一鍵關機','power-sequence:editable',true,step,mode);
+        };
+        showTutorialForElement=function(item,state=null){
+            const key=item.type==='arrow'?`MOTOR${item.sec}_${motorStates[item.sec]===1?'RIGHT':motorStates[item.sec]===-1?'LEFT':'STOP'}`:dcLayerTargets.includes(item.id)?'DC1_A':item.id;
+            const g=guideCatalog19.find(g=>g.key===`manual:${key}:${state===false?'off':'on'}`)||guideCatalog19.find(g=>g.key===`manual:${key}:on`);
+            showCatalogGuide19(g,item,state,'手動操作','manual-guide',false);
+        };
+        const addGuideOriginal19=addTutorialGuide;
+        addTutorialGuide=function(guide,item,state=null,phase='目前步驟',key='',persistent=false){
+            if(!guide?._guideId){
+                const legacy=guideCatalog19.find(g=>g.key===`manual:${dcLayerTargets.includes(item?.id)?'DC1_A':item?.id}:${state===false?'off':'on'}`);
+                if(legacy)guide={...legacy,_guideId:legacy.id};
+            }
+            addGuideOriginal19(guide,item,state,phase,key,persistent);
+        };
+        tutorialDurationMs=function(g){return (g.hold??sequenceStepIntervalMs/1000)*1000;};
+        const pointerOriginal19=tutorialPointerGeometry;
+        tutorialPointerGeometry=function(target,pos){
+            if(!pos.edge||pos.edge==='auto')return pointerOriginal19(target,pos);
+            const starts={left:[pos.left,pos.top+pos.height/2],right:[pos.left+pos.width,pos.top+pos.height/2],top:[pos.left+pos.width/2,pos.top],bottom:[pos.left+pos.width/2,pos.top+pos.height]};
+            const [x,y]=starts[pos.edge];const result=pointerOriginal19(target,{left:x,top:y,width:0,height:0});return result;
+        };
+        function positionGuide19(card,box,existing){
+            const g=card.guide,w=canvas.parentElement.clientWidth,h=canvas.parentElement.clientHeight;
+            card.target=(card.target.type==='arrow'?clickTargets.find(t=>t.type==='arrow'&&t.sec===card.target.sec&&t.dir===card.target.dir):findTutorialItem(card.target.id))||card.target;
+            if(!g.position||g.position==='auto')return {...chooseTutorialPosition(card.target,box,existing),edge:g.edge};
+            const width=Math.min(380,w-16);box.style.width=width+'px';const height=Math.min(h-12,Math.max(100,box.offsetHeight||170));
+            const cx=(card.target.x1+card.target.x2)/2,cy=(card.target.y1+card.target.y2)/2;
+            let left=8,top=8;
+            if(g.position==='left'){left=cx-width-55;top=cy-height/2;}
+            if(g.position==='right'){left=cx+55;top=cy-height/2;}
+            if(g.position==='top'){left=cx-width/2;top=cy-height-55;}
+            if(g.position==='bottom'){left=cx-width/2;top=cy+55;}
+            if(g.position.endsWith('-right'))left=w-width-8;
+            if(g.position.startsWith('bottom-'))top=h-height-8;
+            if(g.position==='custom'){left=(w-width)*g.x/100;top=(h-height)*g.y/100;}
+            return {left:Math.max(6,Math.min(w-width-6,left)),top:Math.max(6,Math.min(h-height-6,top)),width,height,edge:g.edge};
+        }
+        function refreshLiveCards19(id){
+            const g=guideCatalog19.find(g=>g.id===id);if(!g)return;
+            for(const card of tutorialCards)if(card.guide?._guideId===id){card.guide={...g,_guideId:id};card.target=findTutorialItem(card.step?.guideAnchor||g.anchor)||card.originalTarget||card.target;}
+            renderTutorialCards();
+        }
+        function beginGuideLiveEdit(cardId){
+            if(liveEdit19)return;
+            const card=tutorialCards.find(c=>c.id===cardId),g=guideCatalog19.find(g=>g.id===card?.guide?._guideId);if(!g)return;
+            const resume=!!(isAutoRunning||autoStandbyActive);
+            if(resume)pauseAutoProcess('編輯說明視窗',false);
+            liveEdit19={id:g.id,cardId,resume,original:JSON.parse(JSON.stringify(g)),power:powerSequence.active};
+            const panel=document.getElementById('live-guide-editor19');panel.hidden=false;
+            document.getElementById('live-guide-heading19').textContent=`編輯說明 #${g.id} · 流程與模擬時間已暫停`;
+            document.getElementById('live-guide-fields19').innerHTML=guideOptionsFields19(g,'live19',true);
+            updateAutoRunButton();
+        }
+        function readLiveGuide19(){const g={...liveEdit19.original};for(const f of [...GUIDE_FIELDS,'anchor','position','edge','x','y','hold'])g[f]=document.getElementById('live19-'+f).value;return validateGuide19(g);}
+        function previewLiveGuide19(){
+            if(!liveEdit19)return;try{
+                const g=readLiveGuide19(),card=tutorialCards.find(c=>c.id===liveEdit19.cardId);
+                if(card){card.guide={...g,_guideId:g.id};card.target=findTutorialItem(card.step?.guideAnchor||g.anchor)||card.originalTarget||card.target;renderTutorialCards();}
+                document.getElementById('live-guide-error19').textContent='';
+            }catch(error){document.getElementById('live-guide-error19').textContent=error.message;}}
+        function finishGuideLiveEdit(save=true){
+            if(!liveEdit19)return;const edit=liveEdit19;
+            if(save){try{Object.assign(guideCatalog19.find(g=>g.id===edit.id),readLiveGuide19());saveWorkspace19();}catch(error){document.getElementById('live-guide-error19').textContent=error.message;return;}}
+            liveEdit19=null;document.getElementById('live-guide-editor19').hidden=true;refreshLiveCards19(edit.id);
+            // Recompute only the current action's reading deadline, preserving elapsed time.
+            const t=edit.power?powerSequence.timing:autoTiming,g=guideCatalog19.find(g=>g.id===edit.id);
+            if(t?.last&&stepGuide19(t.last,edit.power?powerSequence.mode:'auto')?.id===edit.id&&Number.isFinite(t.batchAt))t.deadline=t.batchAt+Math.max(stepInterval19(t.last),tutorialModeEnabled()?(g?.hold||0):0)*1000;
+            if(edit.resume)toggleAutoProcess();else updateAutoRunButton();
+        }
+        const pauseOriginal19=pauseAutoProcess;
+        pauseAutoProcess=function(reason,blocked=true){if(autoPhase==='paused')return;pauseOriginal19(reason,blocked);};
+        const toggleOriginal19=toggleAutoProcess;
+        toggleAutoProcess=function(){
+            if(liveEdit19)return updateStatus('先按「結束編輯並繼續」完成說明編輯。');
+            if(autoPhase==='paused'){
+                if(currentOpMode!=='auto')return blockOperation('請先切換自動模式。');
+                autoStandbyActive=!!pausedAutoDevices?.standby;isAutoRunning=!autoStandbyActive;autoPhase=pausedAutoPhase;
+                if(pausedAutoDevices){pausedAutoDevices.motors.forEach((dir,i)=>motorStates[i]=dir);Object.assign(targets,pausedAutoDevices.targets);}
+                pausedAutoDevices=null;document.getElementById('btn-auto-run').innerHTML='Ⅱ 暫停自動流程';
+                syncLayerReadouts();refreshParameterEditLocks();updateAutoRunButton();updateStatus('自動流程繼續，保留暫停前的等待進度。');return;
+            }
+            return toggleOriginal19();
+        };
+        const updateButtonOriginal19=updateAutoRunButton;
+        updateAutoRunButton=function(){updateButtonOriginal19();const b=document.getElementById('btn-auto-run');
+            const running=isAutoRunning||autoStandbyActive;
+            if(running){b.disabled=false;b.innerHTML='Ⅱ 暫停自動流程';}
+            else if(autoPhase==='paused'){b.disabled=!!liveEdit19;b.innerHTML=liveEdit19?'編輯說明中':'▶ 繼續自動流程';}
+        };
+        const autoAdvanceOriginal19=advanceAutoProcess,branchAdvanceOriginal19=advanceAutoRpBranch;
+        advanceAutoProcess=function(dt=0){if(sequencePaused())return;autoAdvanceOriginal19(dt);};
+        advanceAutoRpBranch=function(dt=0){if(sequencePaused())return;branchAdvanceOriginal19(dt);};
+        const enterPhaseOriginal19=enterAutoPhase;
+        enterAutoPhase=function(phase,message,skip=false){if(phase==='waiting-vent'&&!skip)resetTiming19(autoTiming);return enterPhaseOriginal19(phase,message,skip);};
+        const recordActionBase19=recordAction19;
+        recordAction19=function(step,t,mode='auto'){return recordActionBase19(step,t,step.id?.startsWith('pf-')||powerSequence.active&&powerSequence.steps?.includes(step)?powerSequence.mode:mode);};
+        // A simultaneous batch keeps all its explanations together; no interval may slip between members.
+        const executeAutoOriginal19=executePendingAutoAction,executePowerOriginal19=executePendingPowerAction;
+        executePendingAutoAction=function(){const p=autoFlowPending,s=p?.steps[p.index],before=tutorialCards.slice(),done=!!p?.actionApplied;
+            const result=executeAutoOriginal19();if(!done&&result&&p?.actionApplied&&s?.withPrevious&&tutorialModeEnabled()){mergeBatchGuides19(before);}
+            return result;};
+        executePendingPowerAction=function(){const s=powerSequence.steps?.[powerSequence.step],before=tutorialCards.slice(),done=powerSequence.actionApplied;
+            const result=executePowerOriginal19();if(!done&&result&&powerSequence.actionApplied&&s?.withPrevious&&tutorialModeEnabled())mergeBatchGuides19(before);return result;};
+        function mergeBatchGuides19(before){
+            const current=tutorialCards;for(const c of before)if(!current.some(n=>n.id===c.id)&&!current.some(n=>n.guide?._guideId===c.guide?._guideId))current.unshift(c);
+            tutorialCards=current.slice(-6);renderTutorialCards();
+        }
+        function exportWorkspace19(){const blob=new Blob([JSON.stringify(workspacePayload19(),null,2)],{type:'application/json'}),a=document.createElement('a');
+            a.href=URL.createObjectURL(blob);a.download='流程與說明設定_v19.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+        function importFile19(input){const file=input.files?.[0];input.value='';if(!file)return;
+            const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);importWorkspace19(data);saveWorkspace19();setSystemFlowKind(systemFlowKind);renderGuideEditor();updateStatus('已匯入流程、分組與編號說明。');}catch(error){window.alert('匯入失敗：'+error.message);}};reader.readAsText(file);}
+        exportAutoFlowSettings=exportPowerFlows=exportGuideOverrides=exportWorkspace19;
+        const legacyImportAuto19=importAutoFlowSettings,legacyImportPower19=importPowerFlows,legacyImportGuide19=importGuideOverrides;
+        importAutoFlowSettings=importPowerFlows=importGuideOverrides=importFile19;
+        resetAllGuides=function(){if(!window.confirm('還原預設說明文字與位置？自訂新增說明會保留。'))return;
+            for(const d of defaultGuideCatalog19){const g=guideCatalog19.find(g=>g.key===d.key);if(g)Object.assign(g,{...d,id:g.id});}saveWorkspace19();renderGuideEditor();};
+        resetAutoFlowSettings=function(){if(!window.confirm('還原自動鍍膜的分組與動作？'))return;
+            flowGroups19.auto=JSON.parse(JSON.stringify(defaultGroups19.auto));autoFlowSteps=AUTO_FLOW_DEFAULT_ACTIONS.map(s=>({...s,group:s.before,minAfter:null,withPrevious:false}));migrateRows19('auto');autoFlowWaitOverrides={};saveAutoFlowSettings();renderAutoFlowEditor();};
+        resetPowerFlowSettings=function(){if(!window.confirm('還原這個開／關機流程的分組與動作？'))return;
+            const mode=powerFlowEditMode;flowGroups19[mode]=JSON.parse(JSON.stringify(defaultGroups19[mode]));syncGroups19();powerFlowSettings[mode]=defaultPowerFlow(mode);migrateRows19(mode);savePowerFlowSettings();renderPowerFlowEditor();};
+        function migrateRows19(kind){for(const s of allRows19(kind)){
+            if(!s.group)s.group=s.before;s.minAfter??=null;s.withPrevious??=false;s.guideAnchor??='';
+            const g=stepGuide19(s,kind);s.guideId=g?.id||0;s.name=displayText19(s.name);
+        }}
+        let branchTiming19={},deferredGuide19=null;
+        const scheduleBranchOriginal19=scheduleAutoRpBranch;
+        scheduleAutoRpBranch=function(){const before=autoRpBranchReadyAtMs;scheduleBranchOriginal19();if(before===null&&autoRpBranchReadyAtMs!==null)resetTiming19(branchTiming19);};
+        advanceAutoRpBranch=function(dt=0){
+            if(sequencePaused()||autoRpBranchReadyAtMs===null)return;
+            if(!pumps.RP1||rpStopRemaining>0){autoRpBranchReadyAtMs=null;autoRpBranchSteps=[];return;}
+            if(rpHasOpenInlet())return;
+            const now=simulationNow();
+            if(autoFlowReopensInletSoon()&&now-autoRpBranchReadyAtMs<autoFlowWaitMs('rp-branch-reopen',30000)){autoRpBranchStepAtMs=now;return;}
+            for(let i=0;i<50&&autoRpBranchReadyAtMs!==null;i++){
+                const step=autoRpBranchSteps[autoRpBranchStepIndex];if(!step){autoRpBranchReadyAtMs=null;autoRpBranchSteps=[];return;}
+                if(!autoFlowConditionReady(step))return;
+                if(step.action.startsWith('wait_')){
+                    if(now-autoRpBranchStepAtMs<(step.seconds||0)*1000)return;
+                    branchTiming19.last=null;
+                }else{
+                    if(!actionReady19(step,branchTiming19))return;
+                    if(step.action==='pump_off'&&step.target==='RP1'&&!rpCanStopNow())return;
+                    if(!applyAutoFlowAction(step))return;
+                    recordAction19(step,branchTiming19);autoRpBranchLastActionAtMs=now;showAutoFlowStepGuide(step,true);
+                }
+                autoRpBranchStepIndex++;autoRpBranchStepAtMs=now;autoRpBranchStepSimElapsed=0;
+                if(autoRpBranchStepIndex>=autoRpBranchSteps.length){autoRpBranchReadyAtMs=null;autoRpBranchSteps=[];return;}
+            }
+        };
+        function recordWait19(step,t,mode='auto'){
+            const g=stepGuide19(step,mode),hold=tutorialModeEnabled()?g?.hold||0:0;
+            t.last=null;t.deadline=Math.max(t.deadline||0,simulationNow()+Math.max(step.minAfter||0,hold)*1000);
+        }
+        const executeAutoBatch19=executePendingAutoAction,executePowerBatch19=executePendingPowerAction;
+        executePendingAutoAction=function(){const p=autoFlowPending,s=p?.steps[p.index],was=p?.actionApplied;
+            const r=executeAutoBatch19();if(!was&&p?.actionApplied&&s?.action.startsWith('wait_'))recordWait19(s,autoTiming);return r;};
+        executePendingPowerAction=function(){const p=powerSequence,s=p.steps?.[p.step],was=p.actionApplied;
+            const r=executePowerBatch19();if(!was&&p.actionApplied&&s?.action.startsWith('wait_'))recordWait19(s,p.timing||(p.timing={}),p.mode);return r;};
+        // Keep the previous explanation readable while the next pressure/timed wait starts concurrently.
+        const catalogShowOriginal19=showCatalogGuide19;
+        showCatalogGuide19=function(g,item,state,phase,key,persistent=true,step=null,kind='auto'){
+            const previous=tutorialCards.find(c=>c.key===key);
+            if(step?.action.startsWith('wait_')&&previous?.minVisibleUntil>simulationNow()){
+                deferredGuide19={args:[g,item,state,phase,key,persistent,step,kind],at:previous.minVisibleUntil};return;
+            }
+            if(deferredGuide19?.args[4]===key)deferredGuide19=null;
+            catalogShowOriginal19(g,item,state,phase,key,persistent,step,kind);
+            const card=tutorialCards.find(c=>c.key===key);if(card)card.minVisibleUntil=simulationNow()+1000*(g?.hold??(step&&!step.action.startsWith('wait_')?stepInterval19(step):0));
+        };
+        const expireOriginal19=expireGuideCards;
+        expireGuideCards=function(){if(sequencePaused())return;
+            if(deferredGuide19&&simulationNow()>=deferredGuide19.at){const q=deferredGuide19;deferredGuide19=null;if(q.args[0]&&guideCatalog19.some(g=>g.id===q.args[0].id))catalogShowOriginal19(...q.args);}
+            expireOriginal19();
+        };
+        // Update names only at the boundary where a hardware choice changes, never twice on saved text.
+        const autoEdit19=updateAutoFlowStep,powerEdit19=updatePowerFlowStep;
+        updateAutoFlowStep=function(id,f,v){autoEdit19(id,f,v);if(f==='action'||f==='target'){const s=autoFlowSteps.find(s=>s.id===id);if(s)s.name=displayText19(s.name);saveWorkspace19();renderAutoFlowEditor();}};
+        updatePowerFlowStep=function(id,f,v){powerEdit19(id,f,v);if(f==='action'||f==='target'){const s=powerFlowSettings[powerFlowEditMode].find(s=>s.id===id);if(s)s.name=displayText19(s.name);saveWorkspace19();renderPowerFlowEditor();}};
+
+        // Show groups in their actual lifecycle order; movement within a lifecycle phase is unrestricted.
+        function orderedGroups19(kind){
+            if(kind!=='auto')return flowGroups19[kind];
+            const phases=AUTO_FLOW_PHASES.map(g=>g[0]);
+            const pos=phases.indexOf('positioning'),dc=phases.indexOf('sputter-dc-stabilize');
+            [phases[pos],phases[dc]]=[phases[dc],phases[pos]];
+            return flowGroups19.auto.slice().sort((a,b)=>phases.indexOf(a.role)-phases.indexOf(b.role));
+        }
+        const groupRenderer19=renderGroups19;
+        renderGroups19=function(kind){if(kind==='auto')flowGroups19.auto=orderedGroups19('auto');return groupRenderer19(kind);};
+        const moveGroupBase19=moveGroup19;
+        moveGroup19=function(kind,id,dir){
+            if(kind!=='auto')return moveGroupBase19(kind,id,dir);
+            const rows=flowGroups19.auto,i=rows.findIndex(g=>g.id===id);let j=i+dir;
+            while(j>=0&&j<rows.length&&rows[j].role!==rows[i].role)j+=dir;
+            if(j<0||j>=rows.length)return updateStatus('自動鍍膜依「執行時機」排序；要改到其他時機，請修改分組的執行時機。');
+            [rows[i],rows[j]]=[rows[j],rows[i]];saveKind19(kind);renderKind19(kind);
+        };
+        function captureNewLegacyGuides19(){
+            for(const e of guideRegistry)if(!guideCatalog19.some(g=>g.key===e.key))guideCatalog19.push({id:++guideSerial19,key:e.key,group:e.group,
+                title:displayText19(e.obj.title||e.label),body:displayText19(e.obj.body||''),next:displayText19(e.obj.next||''),anchor:e.hasAnchor&&Object.hasOwn(tutorialGuides,e.obj.anchor)?e.obj.anchor:'',position:'auto',edge:'auto',x:65,y:5,hold:null});
+        }
+        importFile19=function(input){const file=input.files?.[0];input.value='';if(!file)return;
+            const reader=new FileReader();reader.onload=()=>{try{
+                const data=JSON.parse(reader.result);
+                if(data.version===19)importWorkspace19(data);
+                else if(Array.isArray(data.steps)){
+                    decodeAutoFlowSettings(data);flowGroups19.auto=JSON.parse(JSON.stringify(defaultGroups19.auto));rebuildAutoFlowGuides();captureNewLegacyGuides19();migrateRows19('auto');
+                }else if(Array.isArray(data.startup)&&Array.isArray(data.shutdown)){
+                    const prior=flowGroups19;flowGroups19={...flowGroups19,startup:JSON.parse(JSON.stringify(defaultGroups19.startup)),shutdown:JSON.parse(JSON.stringify(defaultGroups19.shutdown))};syncGroups19();
+                    try{powerFlowSettings=normalizePowerFlow(data);}catch(error){flowGroups19=prior;syncGroups19();throw error;}
+                    rebuildPowerFlowGuides();captureNewLegacyGuides19();migrateRows19('startup');migrateRows19('shutdown');
+                }else if(data.overrides){
+                    const candidate=guideCatalog19.map(g=>validateGuide19({...g,...(data.overrides[g.key]||{})}));guideCatalog19=candidate;
+                }else throw Error('無法辨識的流程／說明檔案');
+                saveWorkspace19();setSystemFlowKind(systemFlowKind);renderGuideEditor();updateStatus('已匯入設定。');
+            }catch(error){window.alert('匯入失敗：'+error.message);}};reader.readAsText(file);
+        };
+        importAutoFlowSettings=importPowerFlows=importGuideOverrides=importFile19;
+        const handleClickBase19=handleElementClick;
+        handleElementClick=function(item){if(liveEdit19)return updateStatus('先結束說明編輯，再操作設備。');return handleClickBase19(item);};
+
+        const startupBase19=startupSystem,shutdownBase19=shutdownSystem,modeBase19=setOpMode;
+        startupSystem=function(){if(liveEdit19)return updateStatus('先結束說明編輯，再操作開機。');return startupBase19();};
+        shutdownSystem=function(){if(liveEdit19)return updateStatus('先結束說明編輯，再操作關機。');return shutdownBase19();};
+        setOpMode=function(mode){if(liveEdit19)return updateStatus('先結束說明編輯，再切換操作模式。');return modeBase19(mode);};
+        createCatalog19();for(const k of ['auto','startup','shutdown'])migrateRows19(k);
+        try{const saved=JSON.parse(localStorage.getItem(FLOW19_KEY)||'null');if(saved)importWorkspace19(saved);}catch(error){console.warn('v19 設定未載入：',error.message);}
+        // Newly copied groups/steps are preserved in the v19 workspace, independently of old v17 exports.
+        syncGroups19();
+        const extraMarkup19=`<dialog id="guide-picker19"><h2>指定說明視窗</h2><p id="guide-picker-current19"></p><input id="guide-picker-search19" type="search" placeholder="搜尋編號或內容" oninput="renderGuidePicker19()"><div id="guide-picker-list19"></div><div class="dialog-actions19"><button class="scada-button" onclick="chooseGuide19(0)">不顯示</button><button class="scada-button" onclick="const g=addGuide19();chooseGuide19(g.id);editPickedGuide19(g.id)">＋ 新增並指定</button><button class="scada-button" onclick="document.getElementById('guide-picker19').close()">關閉</button></div></dialog>
+        <aside id="live-guide-editor19" hidden><h2 id="live-guide-heading19"></h2><div class="guide-form19" id="live-guide-fields19"></div><p id="live-guide-error19" role="alert"></p><div class="dialog-actions19"><button class="scada-button" onclick="finishGuideLiveEdit(true)">結束編輯並繼續</button><button class="scada-button" onclick="finishGuideLiveEdit(false)">取消編輯</button></div></aside>`;
+        document.body.insertAdjacentHTML('beforeend',extraMarkup19);
 
         window.onload = function() {
             movePowerPanelToMain();
