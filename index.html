@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4CH CKT_InLine Sputter System - v49 多目標與持續說明版</title>
+    <title>4CH CKT_InLine Sputter System - v50 手機說明定位修正版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -363,8 +363,7 @@
             .parameter-live-power label { grid-template-columns:1fr; gap:0; }
         }
 
-        #mobile-tutorial-layer:empty { display:none; }
-        #mobile-tutorial-layer .tutorial-callout { position:static; width:100%; max-width:none; margin:0 0 8px; box-sizing:border-box; }
+        .tutorial-callout { box-sizing:border-box; max-height:calc(100% - 24px); overflow:auto; overflow-wrap:anywhere; }
         /* v18: scroll only the technical drawing; all controls fit the screen. */
         #machine-viewport { min-width:0; width:100%; }
         .mobile-diagram-nav { display:none; }
@@ -1036,7 +1035,7 @@
 
     <div id="app-header" class="scada-window p-1 mb-1">
         <div class="bg-[#000080] text-white px-2 py-0.5 font-bold flex justify-between items-center text-sm">
-            <span><i class="fa-solid fa-window-maximize mr-1 text-xs"></i> 4CH CKT_InLine Sputter System - v49 多目標與持續說明版</span>
+            <span><i class="fa-solid fa-window-maximize mr-1 text-xs"></i> 4CH CKT_InLine Sputter System - v50 手機說明定位修正版</span>
             <div class="flex space-x-1 text-xs">
                 <button onclick="blockOperation('最小化功能未啟用：這是教學模擬畫面，請直接在瀏覽器內操作。')" title="教學模擬：未啟用" class="px-2 bg-[#d4d0c8] text-black border border-white hover:bg-gray-300">_</button>
                 <button onclick="blockOperation('最大化功能未啟用：這是教學模擬畫面，請直接在瀏覽器內操作。')" title="教學模擬：未啟用" class="px-2 bg-[#d4d0c8] text-black border border-white hover:bg-gray-300">□</button>
@@ -1320,7 +1319,6 @@
                 </div>
             </div>
 
-        <div id="mobile-tutorial-layer" aria-live="polite"></div>
         <div id="dashboard-row" class="flex flex-wrap justify-between items-end mt-1 gap-2">
             <div class="flex flex-col space-y-2 font-bold bg-[#c0c0c0] p-2 border border-gray-400 flex-1 min-w-[300px]">
                 <div id="auto-timer-display" class="flex gap-6 text-sm">
@@ -2937,11 +2935,8 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
 
         function renderTutorialCards() {
             const desktopLayer = document.getElementById('tutorial-callout-layer');
-            const mobileLayer = document.getElementById('mobile-tutorial-layer');
-            const mobile = typeof window.matchMedia === 'function' && window.matchMedia('(max-width:900px)').matches;
             if (desktopLayer) desktopLayer.innerHTML = '';
-            if (mobileLayer) mobileLayer.innerHTML = '';
-            const layer = mobile && mobileLayer ? mobileLayer : desktopLayer;
+            const layer = desktopLayer;
             const pointer = document.getElementById('tutorial-pointer');
             if (!layer || !pointer) return;
             layer.innerHTML = '';
@@ -2954,7 +2949,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 pointer.classList.add('hidden');
                 return;
             }
-            pointer.classList.toggle('hidden', mobile);
+            pointer.classList.remove('hidden');
             const existing = [];
             groupedCards49(visibleCards).forEach(card => {
                 if(card.motion49)card={...card,guide:{...card.guide,...Object.fromEntries(['title','body','next'].map(f=>[f,motionText49(card.guide[f],card.motion49)]))}};
@@ -2984,8 +2979,7 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
                 next.className = 'tutorial-callout-next'; next.textContent = formatNext26(card.guide.next);next.hidden=!cleanNext26(card.guide.next);
                 box.appendChild(next);
                 layer.appendChild(box);
-                if (mobile) return;
-                const pos = positionGuide19(card, box, existing);
+                const pos = positionGuide50(card, box, existing);
                 box.style.width = `${pos.width}px`;
                 box.style.left = `${pos.left}px`;
                 box.style.top = `${pos.top}px`;
@@ -11224,6 +11218,35 @@ const dcLayerTargets = ['DC1_A', 'DC1_B', 'DC2_A', 'DC2_B'];
             if(g.position==='custom'){left=(w-width)*g.x/100;top=(h-height)*g.y/100;}
             return {left:Math.max(6,Math.min(w-width-6,left)),top:Math.max(6,Math.min(h-height-6,top)),width,height,edge:g.edge};
         }
+        // Keep cards and arrows in the same coordinate system as the drawing on every screen.
+        // A horizontally scrollable drawing uses the visible slice when the target is visible,
+        // or a target-centred slice when the user has scrolled to another chamber.
+        function positionGuide50(card,box,existing){
+            const viewport=document.getElementById('machine-viewport'),stage=canvas.parentElement;
+            const w=stage.clientWidth,h=stage.clientHeight,vw=viewport.clientWidth;
+            if(!vw||vw>=w-1)return positionGuide19(card,box,existing);
+            card.target=findTutorialItem(card.target.id)||card.target;
+            const tx=(card.target.x1+card.target.x2)/2,ty=(card.target.y1+card.target.y2)/2;
+            let pos=positionGuide19(card,box,existing);
+            const width=Math.max(1,Math.min(380,vw-24));
+            box.style.width=width+'px';
+            const height=Math.min(h-24,box.offsetHeight||170);
+            const visibleLeft=viewport.scrollLeft||0;
+            const targetVisible=tx>=visibleLeft&&tx<=visibleLeft+vw;
+            const leftBound=Math.max(0,Math.min(w-vw,targetVisible?visibleLeft:tx-vw/2));
+            if(!card.guide.position||card.guide.position==='auto'){
+                const candidates=tutorialCandidateRects(vw,h,width,height).map(r=>({...r,left:r.left+leftBound,right:r.right+leftBound}));
+                const obstacles=[...clickTargets,...Object.values(gaugeTargets49)].map(t=>({left:t.x1-8,top:t.y1-8,right:t.x2+8,bottom:t.y2+8})).concat(existing);
+                let best=Infinity;
+                for(const r of candidates){
+                    let score=Math.hypot(r.left+width/2-tx,r.top+height/2-ty)*.08;
+                    for(const o of obstacles)if(tutorialRectOverlap(r,o,4))score+=1000+Math.max(0,Math.min(r.right,o.right)-Math.max(r.left,o.left))*Math.max(0,Math.min(r.bottom,o.bottom)-Math.max(r.top,o.top));
+                    if(score<best){best=score;pos={...pos,left:r.left,top:r.top};}
+                }
+            }
+            return {...pos,width,height,left:Math.max(leftBound+12,Math.min(leftBound+vw-width-12,pos.left)),top:Math.max(12,Math.min(h-height-12,pos.top))};
+        }
+        document.getElementById('machine-viewport').addEventListener('scroll',()=>{if(tutorialCards.length)renderTutorialCards();},{passive:true});
         function refreshLiveCards19(id){
             const g=guideCatalog19.find(g=>g.id===id);if(!g)return;
             for(const card of tutorialCards)if(card.guide?._guideId===id){card.guide={...g,_guideId:id,_flowPromptId:card.guide._flowPromptId};card.target=findTutorialItem(selectedAnchors49(card.step,g)[0])||card.originalTarget||card.target;}
